@@ -1,0 +1,9 @@
+/data
+.DS_Store
+.RData
+.RHistory
+__pycache__/
+/.venv/
+Rplots.pdf
+/paper_assets
+paper_assets.zip
