@@ -106,3 +106,5 @@ def sync_assets():
             print(f"Copied {source_path} -> {dest_path}")
 
 
+if __name__ == "__main__":
+    sync_assets()

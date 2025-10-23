@@ -6,6 +6,8 @@ import plotly.express as px
 import os
 import gc
 import statistics
+import io
+from PIL import Image
 from src.utils import  make_dir
 plt.style.use('seaborn-white')
 
@@ -134,7 +136,8 @@ def category_plots(volumes_time, categories, config, ymax):
         ax2.legend(loc = 'upper center')
         ax2.set_ylim([0, ymax])
 
-        fig.savefig(config['output_path'] + 'volumes_over_time/' + category + '.png', dpi = 200)
+        fig.savefig(config['output_path'] + 'volumes_over_time/' + category + '.png', dpi = 300)
+        fig.savefig(config['output_path'] + 'volumes_over_time/' + category + '.tif', dpi = 300)
 
 def category_averages_translations(cat_avgs, cat_avgs_transl, config, categories):
     
@@ -149,7 +152,8 @@ def category_averages_translations(cat_avgs, cat_avgs_transl, config, categories
     plt.legend(loc= 'upper center', ncol = 3)
     plt.ylim([0,1])
 
-    fig.savefig(config['output_path'] + 'volumes_over_time/corpus_vs_transl_categories.png', dpi=200)
+    fig.savefig(config['output_path'] + 'volumes_over_time/corpus_vs_transl_categories.png', dpi=300)
+    # fig.savefig(config['output_path'] + 'volumes_over_time/corpus_vs_transl_categories.tif', dpi=300)
 
 def category_averages_manual(cat_avgs, cat_avgs_manual, config, categories):
     fig, (ax1) = plt.subplots(1,1, figsize=(9,6))
@@ -163,8 +167,8 @@ def category_averages_manual(cat_avgs, cat_avgs_manual, config, categories):
     plt.legend(loc= 'upper center', ncol = 3)
     plt.ylim([0,1])
 
-    fig.savefig(config['output_path'] + 'volumes_over_time/corpus_vs_manual_categories.png', dpi=200)
-
+    fig.savefig(config['output_path'] + 'volumes_over_time/corpus_vs_manual_categories.png', dpi=300)
+    # fig.savefig(config['output_path'] + 'volumes_over_time/corpus_vs_manual_categories.tif', dpi=300)
 
 def volume_count_plots(volume_counts_by_year, config):
 
@@ -178,7 +182,8 @@ def volume_count_plots(volume_counts_by_year, config):
     ax1.set_xlabel('Year')
     #move legend to the upper left corner
     ax1.legend(loc = 'upper left')
-    fig.savefig(config['output_path'] + 'volumes_over_time/' + 'total_volumes_raw.png', dpi = 200)
+    fig.savefig(config['output_path'] + 'volumes_over_time/' + 'total_volumes_raw.png', dpi = 300)
+    # fig.savefig(config['output_path'] + 'volumes_over_time/' + 'total_volumes_raw.tif', dpi = 300)
 
     #rolling average plot
     fig, (ax1) = plt.subplots(1,1)
@@ -186,7 +191,8 @@ def volume_count_plots(volume_counts_by_year, config):
     ax1.legend(loc = 'upper right')
     ax1.set_xlabel('Year')
     ax1.legend(loc = 'upper left')
-    fig.savefig(config['output_path'] + 'volumes_over_time/' + 'total_volumes.png', dpi = 200)
+    fig.savefig(config['output_path'] + 'volumes_over_time/' + 'total_volumes.png', dpi = 300)
+    # fig.savefig(config['output_path'] + 'volumes_over_time/' + 'total_volumes.tif', dpi = 300)
 
 def progress_plots(avg_progress, config, translations = False, manual = False, avg_progress_transl = None, avg_progress_manual = None):
     df = avg_progress.copy()
@@ -214,11 +220,14 @@ def progress_plots(avg_progress, config, translations = False, manual = False, a
     ax1.set_xlabel('Year')
     ax1.set_yticks([0, 0.25, 0.5, 0.75, 1])
     if translations:
-        fig.savefig(config['output_path'] + 'volumes_over_time/' + 'avg_progress_translations_raw.png', dpi = 200)
+        fig.savefig(config['output_path'] + 'volumes_over_time/' + 'avg_progress_translations_raw.png', dpi = 300)
+        # fig.savefig(config['output_path'] + 'volumes_over_time/' + 'avg_progress_translations_raw.tif', dpi = 300)
     elif manual:
-        fig.savefig(config['output_path'] + 'volumes_over_time/' + 'avg_progress_manual_raw.png', dpi = 200)
+        fig.savefig(config['output_path'] + 'volumes_over_time/' + 'avg_progress_manual_raw.png', dpi = 300)
+        # fig.savefig(config['output_path'] + 'volumes_over_time/' + 'avg_progress_manual_raw.tif', dpi = 300)
     else:
-        fig.savefig(config['output_path'] + 'volumes_over_time/' + 'avg_progress_raw.png', dpi = 200)
+        fig.savefig(config['output_path'] + 'volumes_over_time/' + 'avg_progress_raw.png', dpi = 300)
+        # fig.savefig(config['output_path'] + 'volumes_over_time/' + 'avg_progress_raw.tif', dpi = 300)
 
     #rolling average plot
     fig, (ax1) = plt.subplots(1,1)
@@ -231,11 +240,14 @@ def progress_plots(avg_progress, config, translations = False, manual = False, a
     ax1.set_xlabel('Year')
     ax1.set_yticks([0, 0.25, 0.5, 0.75, 1])
     if translations:
-        fig.savefig(config['output_path'] + 'volumes_over_time/' + 'avg_progress_translations.png', dpi = 200)
+        fig.savefig(config['output_path'] + 'volumes_over_time/' + 'avg_progress_translations.png', dpi = 300)
+        # fig.savefig(config['output_path'] + 'volumes_over_time/' + 'avg_progress_translations.tif', dpi = 300)
     elif manual:
-        fig.savefig(config['output_path'] + 'volumes_over_time/' + 'avg_progress_manual.png', dpi = 200)
+        fig.savefig(config['output_path'] + 'volumes_over_time/' + 'avg_progress_manual.png', dpi = 300)
+        # fig.savefig(config['output_path'] + 'volumes_over_time/' + 'avg_progress_manual.tif', dpi = 300)
     else:
-        fig.savefig(config['output_path'] + 'volumes_over_time/' + 'avg_progress.png', dpi = 200)
+        fig.savefig(config['output_path'] + 'volumes_over_time/' + 'avg_progress.png', dpi = 300)
+        # fig.savefig(config['output_path'] + 'volumes_over_time/' + 'avg_progress.tif', dpi = 300)
 
 def industry_plots(avg_industry, config):
     df = avg_industry.copy()
@@ -247,7 +259,8 @@ def industry_plots(avg_industry, config):
     ax1.legend(loc = 'upper right')
     ax1.set_xlabel('Year')
     ax1.set_yticks([0, 0.25, 0.5, 0.75, 1])
-    fig.savefig(config['output_path'] + 'volumes_over_time/' + 'avg_industry_raw.png', dpi = 200)
+    fig.savefig(config['output_path'] + 'volumes_over_time/' + 'avg_industry_raw.png', dpi = 300)
+    # fig.savefig(config['output_path'] + 'volumes_over_time/' + 'avg_industry_raw.tif', dpi = 300)
 
     #rolling average plot
     fig, (ax1) = plt.subplots(1,1)
@@ -255,12 +268,15 @@ def industry_plots(avg_industry, config):
     ax1.legend(loc = 'upper right')
     ax1.set_xlabel('Year')
     ax1.set_yticks([0, 0.25, 0.5, 0.75, 1])
-    fig.savefig(config['output_path'] + 'volumes_over_time/' + 'avg_industry.png', dpi = 200)
+    fig.savefig(config['output_path'] + 'volumes_over_time/' + 'avg_industry.png', dpi = 300)
+    # fig.savefig(config['output_path'] + 'volumes_over_time/' + 'avg_industry.tif', dpi = 300)
 
 def topic_ternary_plots(config, topic_shares, years, categories):
 
     make_dir(config['output_path'] + 'topic_triangles/color/')
     make_dir(config['output_path'] + 'topic_triangles/grayscale/')
+    # make_dir(config['output_path'] + 'topic_triangles/color/tif/')
+    # make_dir(config['output_path'] + 'topic_triangles/grayscale/tif/')
 
     gray_map = {
         categories[0]: 'rgb(120, 120, 120)',
@@ -285,15 +301,30 @@ def topic_ternary_plots(config, topic_shares, years, categories):
             fig.update_traces(showlegend=True)
             fig.update_layout(legend = dict(y=0.5), legend_title_text = 'Legend')
 
-        fig.write_image(config['output_path'] + 'topic_triangles/color/' + str(year) +'.png', width = 900)
+        fig.write_image(config['output_path'] + 'topic_triangles/color/' + str(year) +'.png', scale = 2, width = 900)
+        
+        #save as tiff as well
+        # buf = io.BytesIO()
+        # fig.write_image(buf, format = 'png', scale = 2, width = 900)
+        # buf.seek(0)
+
+        # im = Image.open(buf)
+        # im.save(config['output_path'] + 'topic_triangles/color/tif/' + str(year) +'.tif', compression = 'tiff_lzw')
 
         for trace in fig.data:
             cat = trace.name
             if cat in gray_map:
                 trace.marker.color = gray_map[cat]
 
-        fig.write_image(config['output_path'] + 'topic_triangles/grayscale/' + str(year) +'.png', width = 900)
+        fig.write_image(config['output_path'] + 'topic_triangles/grayscale/' + str(year) +'.png', scale = 2, width = 900)
 
+        #save as tiff as well
+        # buf = io.BytesIO()
+        # fig.write_image(buf, format = 'png', scale = 2, width = 900)
+        # buf.seek(0)
+
+        # im = Image.open(buf)
+        # im.save(config['output_path'] + 'topic_triangles/grayscale/tif/' + str(year) +'.tif', compression = 'tiff_lzw')
 
 def estc_distribution_plot(config, estc_data, volume_counts_by_year, all_years):
         """Create ESTC vs. HDL volume distribution plots"""
@@ -331,7 +362,7 @@ def estc_distribution_plot(config, estc_data, volume_counts_by_year, all_years):
         ax1.set_ylabel('Cumulative Share')
         ax1.set_yticks([0,0.25, 0.5, 0.75, 1])
         ax1.set_yticklabels(["0", "0.25", "0.5", "0.75", "1"])
-        fig.savefig(config['output_path'] + 'estc_figures/estc_hathitrust_counts.png', dpi = 200)
+        fig.savefig(config['output_path'] + 'estc_figures/estc_hathitrust_counts.png', dpi = 300)
 
         fig, (ax1) = plt.subplots(1,1)
         ax1.plot(volume_counts['Year'], volume_counts['estc_rolling_share'], color = 'red', label = 'ESTC', linestyle = 'dashed')
@@ -341,7 +372,8 @@ def estc_distribution_plot(config, estc_data, volume_counts_by_year, all_years):
         ax1.set_ylabel('Share')
         ax1.set_yticks([0,0.01, 0.02, 0.03])
         ax1.set_yticklabels(["0", "0.01", "0.02", "0.03"])
-        fig.savefig(config['output_path'] + 'estc_figures/estc_hathitrust_pdf.png', dpi = 200)
+        fig.savefig(config['output_path'] + 'estc_figures/estc_hathitrust_pdf.png', dpi = 300)
+        # fig.savefig(config['output_path'] + 'estc_figures/estc_hathitrust_pdf.tif', dpi = 300)
 
 
 
@@ -359,6 +391,7 @@ def ternary_plots(data, color, filepath, legend_title, years, categories, graysc
     s = str(size)
 
     make_dir(path = filepath)
+    # make_dir(path = filepath + 'tif/')
 
     for year in years:
 
@@ -407,11 +440,26 @@ def ternary_plots(data, color, filepath, legend_title, years, categories, graysc
         )
 
         if year == 1850 and show_legend is True:   
-            fig.write_image(filepath + str(year) + '.png', width=900) #included because wider format needed for color scale
-        
+            fig.write_image(filepath + str(year) + '.png', width=900, scale = 2) #included because wider format needed for color scale
+
+            # #save as tiff as well
+            # buf = io.BytesIO()
+            # fig.write_image(buf, format = 'png', width=900, scale = 2)
+            # buf.seek(0)
+
+            # im = Image.open(buf)
+            # im.save(filepath + 'tif/' + str(year) + '.tif', compression = 'tiff_lzw')        
         else:
             fig.update(layout_coloraxis_showscale=False) #removes colorbar
-            fig.write_image(filepath + str(year) + '.png') #only works with kaleido 0.1.0 for some reason, use 'conda install python-kaleido=0.1.0post1' on PC, also uses plotly 5.10.0
+            fig.write_image(filepath + str(year) + '.png', scale = 2) #only works with kaleido 0.1.0 for some reason, use 'conda install python-kaleido=0.1.0post1' on PC, also uses plotly 5.10.0
+
+            # #save as tiff as well
+            # buf = io.BytesIO()
+            # fig.write_image(buf, format = 'png', scale = 2)
+            # buf.seek(0)
+
+            # im = Image.open(buf)
+            # im.save(filepath + 'tif/' + str(year) + '.tif', compression = 'tiff_lzw')
         
         # Uncomment for no legend at all
         # fig.update(layout_coloraxis_showscale=False) #removes colorbar

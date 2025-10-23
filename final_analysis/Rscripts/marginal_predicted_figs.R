@@ -1,7 +1,7 @@
 rm(list=ls())
 options(scipen=999)
 
-setwd("E:/grad_school/research/AIKR")
+# setwd(dirname(this.path()))
 
 library(yaml)
 library(tidyverse)
@@ -204,7 +204,7 @@ predicted_fig <- ggplot(predicted, aes(x = bin, y = fit, group = label)) +
   theme_light()
 
 
-ggsave(paste(path, '/predicted_values.png', sep=''), width = 8)
+ggsave(paste(path, '/predicted_values.png', sep=''), width = 8, dpi = 300)
 
 ######figure with varying weights of PE and Science
 
@@ -255,7 +255,7 @@ predicted_fig_s_f <- ggplot(predicted_s_f, aes(x = bin, y = fit, group = label))
   coord_cartesian(ylim = c(-0.4, 2.25)) +
   theme_light()
 
-ggsave(paste(path, '/predicted_values_sci_pol.png', sep=''), width = 9)
+ggsave(paste(path, '/predicted_values_sci_pol.png', sep=''), width = 9, dpi = 300)
 
 s100p <- pred(lm = model_marginal_predicted, sci = 1, rel = 0, flex = 0)
 s80_r20p <- pred(lm = model_marginal_predicted, sci = 0.8, rel = 0.2, flex = 0)
@@ -302,7 +302,7 @@ predicted_fig_s_r <- ggplot(predicted_s_r, aes(x = bin, y = fit, group = label))
   coord_cartesian(ylim = c(-0.4, 2.25)) +
   theme_light()
 
-ggsave(paste(path, '/predicted_values_sci_rel.png', sep=''), width = 8)
+ggsave(paste(path, '/predicted_values_sci_rel.png', sep=''), width = 8, dpi = 300)
 
 #save model from progress_percentile_main
 if (progress_var == 'progress_main_percentile'){
@@ -460,7 +460,7 @@ if (!dir.exists(path)){
   print("dir exists")
 }
 
-ggsave(paste(path, '/predicted_values.png', sep =''), width = 13.5)
+ggsave(paste(path, '/predicted_values.png', sep =''), width = 13.5, dpi = 300)
 
 ######################################Figure with different values of industry
 
@@ -512,7 +512,7 @@ predicted_fig <- ggplot(pred_combined, aes(x = bin, y = fit, group = label)) +
 # Show plot
 print(predicted_fig)
 
-ggsave(paste(path, '/predicted_values_sci_pe.png', sep =''), width = 13.5)
+ggsave(paste(path, '/predicted_values_sci_pe.png', sep =''), width = 13.5, dpi = 300)
 
 }
 }

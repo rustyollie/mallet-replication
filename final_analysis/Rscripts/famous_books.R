@@ -64,7 +64,7 @@ plot <- ggtern(famous_selected, aes(x = Political.Economy, y = Religion, z = Sci
 
 path <- paste(config$output_path, 'famous_volumes.png', sep = '/')
 
-ggsave(path, plot, width = 9)
+ggsave(path, plot, width = 9, dpi = 300)
 
 #####grayscale
 
@@ -89,4 +89,4 @@ plot_gray <- ggtern(famous_selected, aes(x = Political.Economy, y = Religion, z 
 
 path_gray <- paste(config$output_path, 'famous_volumes_gray.png', sep = '/')
 
-ggsave(path_gray, plot_gray, width = 9)
+ggsave(path_gray, plot_gray, width = 9, dpi = 300)

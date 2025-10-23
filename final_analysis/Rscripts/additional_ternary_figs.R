@@ -7,7 +7,7 @@ library(biscale)
 library(cowplot)
 library(yaml)
 
-setwd('E:/grad_school/research/AIKR/')
+# setwd('E:/grad_school/research/AIKR/')
 
 config <- yaml.load_file('./Rscripts/r_config.yaml')
 
@@ -105,7 +105,7 @@ for (year in years){
   
   # figure_list[[toString(year)]] <- plot
   
-  ggsave(paste(path, '/', year, '.png', sep = ''),width = 6.5, height = 4.5)
+  ggsave(paste(path, '/', year, '.png', sep = ''),width = 6.5, height = 4.5, dpi = 300)
 }
 
 
@@ -170,11 +170,11 @@ for (year in years){
       draw_plot(fig_go, 0, 0, 1, 1) +
       draw_plot(legend, 0.62, 0.4, 0.5, 0.5)
     show(fig_combined)
-    ggsave(paste(path, '/', year, '.png', sep = ''), plot = fig_combined, width = 12, height = 6.5)
+    ggsave(paste(path, '/', year, '.png', sep = ''), plot = fig_combined, width = 12, height = 6.5, dpi = 300)
     
   }else{
     show(fig)
-    ggsave(paste(path, '/', year, '.png', sep = ''), plot = fig, width = 8, height = 6.5)
+    ggsave(paste(path, '/', year, '.png', sep = ''), plot = fig, width = 8, height = 6.5, dpi = 300)
   }
 }
 
@@ -238,11 +238,11 @@ for (year in years){
       draw_plot(fig_go, 0, 0, 1, 1) +
       draw_plot(legend, 0.62, 0.4, 0.5, 0.5)
     show(fig_combined)
-    ggsave(paste(path, '/', year, '.png', sep = ''), plot = fig_combined, width = 12, height = 6.5)
+    ggsave(paste(path, '/', year, '.png', sep = ''), plot = fig_combined, width = 12, height = 6.5, dpi = 300)
     
   }else{
     show(fig)
-    ggsave(paste(path, '/', year, '.png', sep = ''), plot = fig, width = 8, height = 6.5)
+    ggsave(paste(path, '/', year, '.png', sep = ''), plot = fig, width = 8, height = 6.5, dpi = 300)
   }
 }
 
