@@ -19,6 +19,70 @@ All data are publicly available.
 
 ### LDA
 
+The code stored in the `lda` directory implements MALLET (MAchine Learning for LanguagE Toolkit) topic modeling to extract 60 topics from the historical corpus. This produces the LDA output files that are used as input for the Final Analysis pipeline.
+
+The topic modeling framework uses fixed model parameters for exact reproducibility:
+- **Number of topics:** 60 (hardcoded)
+- **Random seed:** 1 (hardcoded)
+- **Optimization interval:** 500 (hardcoded)
+
+Infrastructure parameters (paths, compute resources) are fully configurable via `lda/config.sh` file.
+
+**Requirements:**
+- MALLET installed and in PATH
+- Java 1.8 or higher
+- Bash 4.0+
+- SLURM (optional, for HPC environments)
+
+**Quick Start:**
+
+1. Navigate to the LDA directory:
+   ```bash
+   cd lda
+   ```
+
+2. Create configuration file:
+   ```bash
+   cp config.template.sh config.sh
+   vim config.sh  # Edit INPUT_DIR, OUTPUT_DIR, STOPLIST_FILE
+   ```
+
+3. Run topic modeling:
+   ```bash
+   # Local execution
+   ./final_mallet_2025.sh
+
+   # Or submit to SLURM
+   sbatch final_mallet_2025.sh
+   ```
+
+**Output Files:**
+
+The LDA pipeline produces several output files in the specified output directory:
+- `topics.txt` - Document-topic distributions (main output for Final Analysis)
+- `keys.txt` - Topic keywords
+- `model.mallet` - Trained topic model
+- `inferencer.mallet` - For applying model to new documents
+- `diagnostics.xml` - Training diagnostics
+
+**Documentation:**
+
+For detailed documentation, see:
+- `lda/README.md` - Complete documentation with all options
+- `lda/QUICKSTART.md` - 30-second quick reference
+- `lda/DEPLOY.md` - Step-by-step HPC deployment guide
+- `lda/test/README_TESTING.md` - Testing framework documentation
+
+**Testing:**
+
+A comprehensive test suite is included that validates the framework without requiring MALLET installation:
+```bash
+cd lda/test
+./run_tests.sh
+```
+
+The test suite includes 12 test scenarios with 32 assertions covering configuration management, CLI arguments, validation, and error handling.
+
 ### Final Analysis
 
 The code stored in the `final_analysis` directory takes the output of the LDA model, performs data processing and transformation, runs the algorithm to get distinct "categories" of topics (e.g. Science, Religion, and Political Economy), runs regressions, and produces the final tables and figures.
