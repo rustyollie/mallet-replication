@@ -2,6 +2,22 @@
 
 This repository contains scripts for exact replication of topic modeling analysis using MALLET (MAchine Learning for LanguagE Toolkit).
 
+---
+
+## ⚠️ Official Repository
+
+**This is a development/backup repository. The official version is maintained as part of the complete QJE replication package:**
+
+**Official Repository:** [austinkennedy/AIKR_QJE_Replication](https://github.com/austinkennedy/AIKR_QJE_Replication)
+
+The official repository includes:
+- **LDA Topic Modeling** (`lda/` directory) - This MALLET package
+- **Final Analysis** (`final_analysis/` directory) - Python analysis producing 53 figures and 3 tables
+
+For the complete replication package for the paper "Enlightenment Ideals and Beliefs in Progress in the Run-up to the Industrial Revolution: A Textual Analysis" by Ali Almelhem, Murat Iyigun, Austin Kennedy, and Jared Rubin, please use the official repository above.
+
+---
+
 ## Purpose
 
 These scripts are designed for **exact replication** of published research results. Model parameters are intentionally hardcoded to ensure identical results across different computing environments.
