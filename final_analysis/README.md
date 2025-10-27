@@ -40,7 +40,7 @@ The following is a table of data files that must be present for the analysis to 
 | `famous_books.csv` | The metadata for selected famous works in our corpus. |
 | `industry_optimism_may_2025.csv` | The volume-level optimism scores, double meanings excluded, and industry scores, using the 1708 dictionary. |
 | `industry_scores_full_dict.csv` | The volume-level industry scores, including words first used after 1643. |
-| `industry_scores_jan2025.csv' | The volume-level industry scores, excluding words first used after 1643. |
+| `industry_scores_jan2025.csv` | The volume-level industry scores, excluding words first used after 1643. |
 | `LDA_01_keys.txt` | The topics and associated words outputted by the LDA model used in our main analysis. |
 | `LDA_01_topics.txt` | The volume-level weights associated with each topic, using the topics outputted by the LDA model used in our main analysis. |
 | `metadata_march25.csv` | The metadata for our corpus. |
