@@ -48,3 +48,32 @@ The following is a table of data files that must be present for the analysis to 
 | `sentiment_results_march25.csv` | The sentiment scores used in our main analysis. |
 | `translations.csv` | Contains flags for volumes that are translations. |
 | `updated_progress_scores_march25.csv` | Scores for the "progress" dictonaries used in the main analysis, as well as the 1708 dictionary. |
+
+## Scripts
+
+### Orchestration Scripts
+
+There are five ochestration scripts in the `final_analysis` directory.
+
+`main.py` runs the entire analysis and produces all figures and tables, including for the appendix. The other orchestration scripts are called by `main.py`, but can be run individually as well:
+- `main_analysis.py`: this script takes the output of the main LDA model and runs the algorithm to produce distinct categories (e.g. Science, Religion, and Political Economy in the paper), runs regressions, and produces the figures and tables for the main analysis.
+- `unbinned_analysis.py`: this script re-runs the main analysis without placing volumes into bins.
+- `coherence.py`: This script re-runs the analysis using the output of the LDA model which used the Coherence scores (Section C)
+- `sync_assets.py`: This script retrieves all of the figures and tables produced by the other scripts and consolidates them into a single folder, with tables and figures corresponding to their respective labels in the paper.
+
+### Source Code
+
+The orchestration scripts call functions from scripts located in the `final_analysis/src/` directory. Below is a list of these scripts and a description of what each one does, in the order that the analysis runs:
+- `clean_data.py`: imports input data, performs some basic data cleaning, and produces intermediate datasets.
+- `cross_topics.py`: performs topic-wise multiplication on the volume topic weights.
+- `categories.py`: runs the algorithm to create distinct categories.
+- `shares.py`: calculates yearly shares for each cross-topic combination.
+- `topic_volume_weights.py`: calculates category weights for each volume.
+- `volume_data.py`: combine category weights, all sentiment scores, and calculate percentiles.
+- `figures.py`: produces main figures.
+
+There are also some R scripts 
+
+
+
+
