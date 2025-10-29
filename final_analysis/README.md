@@ -72,7 +72,29 @@ The orchestration scripts call functions from scripts located in the `final_anal
 - `volume_data.py`: combine category weights, all sentiment scores, and calculate percentiles.
 - `figures.py`: produces main figures.
 
-There are also some R scripts 
+As part of the analysis, the orchestration scripts run R scripts located in `final_analysis/Rscripts`. Below is a list of these scripts and a description for each one:
+- `regression_tables.R`: runs regressions and produces regression tables.
+- `marginal_predicted_figs.R`: runs regressions, calculates predicted values, and produces predicted values figures.
+- `famous_books.R`: produces figure showing category weights for selected famous volumes.
+- `additional_ternary_fig.R`: creates additional ternary plots.
+
+### Configuration Files
+
+Configuration files can be found in `final_analysis/configs`. There are two configuration files:
+1. `config_main_analysis.yaml`: the configuration file for the main analysis.
+2. `config_coherence.yaml`: the configuration file for the analysis using the Coherence score.
+
+The files contain the following parameters:
+- `version`: points the data cleaning script to the correct files and data cleaning steps.
+- `input_path`: the location of the input data.
+- `temporary_path` the location to save temporary data files.
+- `output_path`: the location to save output tables and figures
+- `categories`: determines the categories and associated topic numbers. **Note:** This parameter is set based on the results of the categorization algorithm.
+- `half_century`: (true/false) determines whether yearly figures are created for every year in the corpus time period or only for half-centuries. Expect a significantly longer runtime if this parameter is set to false.
+- `bins`: (true/false) whether or not to place volumes into bins of +/- 20 years. Changing this parameter to false runs the unbinned analysis.
+- `category_plots_ymax`: sets the maximum y-value for the category plots.
+- `min_regression_year`: sets the minimum year of publication for volumes included in regressions.
+- `ternary_figs`: sets the options for the creation of ternary figures.
 
 
 
