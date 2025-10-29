@@ -7,8 +7,6 @@ library(biscale)
 library(cowplot)
 library(yaml)
 
-# setwd('E:/grad_school/research/AIKR/')
-
 config <- yaml.load_file('./Rscripts/r_config.yaml')
 
 volumes <- read.csv(paste(config$temporary_path, 'volumes_scores.csv', sep = '/'))

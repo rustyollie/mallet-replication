@@ -28,12 +28,12 @@ def run_main_analysis():
     # run_shares(config)
     # run_topic_volume_weights(config)
     # run_volume_data(config)
-    # run_figures(config)
-    create_r_config(config, 'Rscripts/r_config.yaml')
-    subprocess.run(['Rscript', 'Rscripts/regression_tables.R'])
-    subprocess.run(['Rscript', 'Rscripts/marginal_predicted_figs.R'])
-    subprocess.run(['Rscript', 'Rscripts/famous_books.R'])
-    subprocess.run(['Rscript', 'Rscripts/additional_ternary_figs.R'])
+    run_figures(config)
+    # create_r_config(config, 'Rscripts/r_config.yaml')
+    # subprocess.run(['Rscript', 'Rscripts/regression_tables.R'])
+    # subprocess.run(['Rscript', 'Rscripts/marginal_predicted_figs.R'])
+    # subprocess.run(['Rscript', 'Rscripts/famous_books.R'])
+    # subprocess.run(['Rscript', 'Rscripts/additional_ternary_figs.R'])
 
     # ################ create tables with author fixed effects
 

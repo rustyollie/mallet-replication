@@ -301,11 +301,18 @@ def topic_ternary_plots(config, topic_shares, years, categories):
             fig.update_traces(showlegend=True)
             fig.update_layout(legend = dict(y=0.5), legend_title_text = 'Legend')
 
-        fig.write_image(config['output_path'] + 'topic_triangles/color/' + str(year) +'.png', scale = 2, width = 900)
+        # fig.write_image(config['output_path'] + 'topic_triangles/color/' + str(year) +'.png', width = 900, height = 500, scale = 6)
+
+        buf = io.BytesIO()
+        fig.write_image(buf, format = 'png', width = 900, height = 500, scale = 6)
+        buf.seek(0)
+
+        im = Image.open(buf)
+        im.save(config['output_path'] + 'topic_triangles/color/' + str(year) +'.png', dpi = (300,300))
         
         #save as tiff as well
         # buf = io.BytesIO()
-        # fig.write_image(buf, format = 'png', scale = 2, width = 900)
+        # fig.write_image(buf, format = 'png', scale = 6, width = 900)
         # buf.seek(0)
 
         # im = Image.open(buf)
@@ -316,11 +323,18 @@ def topic_ternary_plots(config, topic_shares, years, categories):
             if cat in gray_map:
                 trace.marker.color = gray_map[cat]
 
-        fig.write_image(config['output_path'] + 'topic_triangles/grayscale/' + str(year) +'.png', scale = 2, width = 900)
+        # fig.write_image(config['output_path'] + 'topic_triangles/grayscale/' + str(year) +'.png', width = 900, height = 500, scale = 6)
+
+        buf = io.BytesIO()
+        fig.write_image(buf, format = 'png', width = 900, height = 500, scale = 6)
+        buf.seek(0)
+
+        im = Image.open(buf)
+        im.save(config['output_path'] + 'topic_triangles/grayscale/' + str(year) +'.png', dpi = (300,300))
 
         #save as tiff as well
         # buf = io.BytesIO()
-        # fig.write_image(buf, format = 'png', scale = 2, width = 900)
+        # fig.write_image(buf, format = 'png', scale = 6, width = 900)
         # buf.seek(0)
 
         # im = Image.open(buf)
@@ -440,26 +454,25 @@ def ternary_plots(data, color, filepath, legend_title, years, categories, graysc
         )
 
         if year == 1850 and show_legend is True:   
-            fig.write_image(filepath + str(year) + '.png', width=900, scale = 2) #included because wider format needed for color scale
+            # fig.write_image(filepath + str(year) + '.png', height = 500, width=900, scale = 6) #included because wider format needed for color scale
 
-            # #save as tiff as well
-            # buf = io.BytesIO()
-            # fig.write_image(buf, format = 'png', width=900, scale = 2)
-            # buf.seek(0)
 
-            # im = Image.open(buf)
-            # im.save(filepath + 'tif/' + str(year) + '.tif', compression = 'tiff_lzw')        
+            buf = io.BytesIO()
+            fig.write_image(buf, format = 'png', height = 500, width=900, scale = 6)
+            buf.seek(0)
+
+            im = Image.open(buf)
+            im.save(filepath + str(year) + '.png', dpi = (300,300))        
         else:
             fig.update(layout_coloraxis_showscale=False) #removes colorbar
-            fig.write_image(filepath + str(year) + '.png', scale = 2) #only works with kaleido 0.1.0 for some reason, use 'conda install python-kaleido=0.1.0post1' on PC, also uses plotly 5.10.0
+            # fig.write_image(filepath + str(year) + '.png', height = 500, width = 700, scale = 6) #only works with kaleido 0.1.0 for some reason, use 'conda install python-kaleido=0.1.0post1' on PC, also uses plotly 5.10.0
 
-            # #save as tiff as well
-            # buf = io.BytesIO()
-            # fig.write_image(buf, format = 'png', scale = 2)
-            # buf.seek(0)
+            buf = io.BytesIO()
+            fig.write_image(buf, format = 'png', height = 500, width=900, scale = 6)
+            buf.seek(0)
 
-            # im = Image.open(buf)
-            # im.save(filepath + 'tif/' + str(year) + '.tif', compression = 'tiff_lzw')
+            im = Image.open(buf)
+            im.save(filepath + str(year) + '.png', dpi = (300,300))
         
         # Uncomment for no legend at all
         # fig.update(layout_coloraxis_showscale=False) #removes colorbar
