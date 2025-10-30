@@ -77,24 +77,6 @@ STOPWORD_FILTERS = {
 # ============================================================================
 
 
-# Global variables (initialized by load_reference_data)
-corr = None
-corr_set = None
-madict = None
-madict_set = None
-cities = None
-countries = None
-continents = None
-people_names = None
-english_stopwords = None
-modern_words = None
-stems = None
-days = None
-months = None
-roman_numerals = None
-stopwords_ne_ss = None
-stopwords_numer = None
-
 # Initialize lemmatizer and stemmer
 lemmatizer = WordNetLemmatizer()
 stemmer = SnowballStemmer('english')
@@ -103,6 +85,91 @@ idx = pd.IndexSlice
 # Character deletion (remove all non-alphabetic characters)
 delchars = ''.join(c for c in map(chr, range(256)) if not c.isalpha())
 alleraser = str.maketrans('', '', delchars)
+
+
+# ============================================================================
+# MODULE-LEVEL DICTIONARY LOADING
+# ============================================================================
+# These dictionaries are loaded when the module is imported (not at runtime).
+# This ensures each multiprocessing worker gets its own copy of the data.
+# Dictionaries are loaded from the reference_data/ subdirectory.
+# This matches the original PT_Nov2024.py behavior for multiprocessing.
+# ============================================================================
+
+# Helper function for Roman numerals (needed before loading)
+def int_to_roman_lowercase(num):
+    """Convert integer to lowercase Roman numeral"""
+    if num == 0:
+        return "n"  # Special case for zero (nulla)
+
+    val = [
+        1000, 900, 500, 400,
+        100, 90, 50, 40,
+        10, 9, 5, 4,
+        1
+    ]
+    syms = [
+        "m", "cm", "d", "cd",
+        "c", "xc", "l", "xl",
+        "x", "ix", "v", "iv",
+        "i"
+    ]
+    roman_num = ''
+    i = 0
+    while num > 0:
+        for _ in range(num // val[i]):
+            roman_num += syms[i]
+            num -= val[i]
+        i += 1
+    return roman_num
+
+
+# Default dictionary paths (relative to this script)
+DEFAULT_DICT_CORRECTIONS = Path(__file__).parent / "reference_data" / "Master_Corrections.csv"
+DEFAULT_DICT_MA = Path(__file__).parent / "reference_data" / "MA_Dict_Final.csv"
+DEFAULT_WORLD_CITIES = Path(__file__).parent / "reference_data" / "world_cities.csv"
+
+# Load correction dictionaries
+corr = pd.read_csv(DEFAULT_DICT_CORRECTIONS)
+corr = corr.rename(columns={'lemma':'orig','correct_spelling':'stand'}).set_index('orig')
+corr_set = set(corr.index)
+
+madict = pd.read_csv(DEFAULT_DICT_MA)
+madict = madict.set_index('orig')
+madict_set = set(madict.index)
+
+# Load geographic data
+cities_df = pd.read_csv(DEFAULT_WORLD_CITIES)
+cities = set(city.lower() for city in cities_df['name'])
+
+countries = set([country.name.lower() for country in pycountry.countries])
+
+continents = set(['africa', 'asia', 'europe', 'america', 'australia', 'antartica'])
+
+# Load NLTK data
+people_names = set([name.lower() for name in names.words()])
+english_stopwords = set(stopwords.words('english'))
+modern_words = set([word.lower() for word in nltk_words.words()])
+
+# Generate stems
+stems = set([stemmer.stem(word) for word in modern_words])
+
+# Days and months
+days = set(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'])
+months = set(['jan', 'feb', 'mar', 'apr', 'may', 'jun',
+             'jul', 'aug', 'sep', 'oct', 'nov', 'dec'])
+
+# Generate Roman numerals (0-500)
+roman_numerals = set([int_to_roman_lowercase(i) for i in range(501)])
+
+# Combined stopword sets
+stopwords_ne_ss = cities.union(
+    countries, people_names, english_stopwords, modern_words,
+    continents, stems, days, months, roman_numerals
+)
+stopwords_numer = english_stopwords.union(roman_numerals)
+
+# ============================================================================
 
 
 def parse_config_file(config_path):
@@ -222,12 +289,11 @@ For detailed documentation, see README.md
             args.error_log = Path(config['ERROR_LOG'])
 
     # Validate required arguments
+    # Note: Dictionary paths are now loaded from default locations at module import time
+    # and are no longer required as command-line arguments
     required = {
         'input': args.input,
-        'output': args.output,
-        'dict_corrections': args.dict_corrections,
-        'dict_ma': args.dict_ma,
-        'world_cities': args.world_cities
+        'output': args.output
     }
 
     missing = [name for name, value in required.items() if value is None]
@@ -281,18 +347,9 @@ def validate_environment(args):
             print("Aborted by user.")
             sys.exit(0)
 
-    # Check dictionary files exist
-    dict_files = [
-        (args.dict_corrections, "Master_Corrections.csv"),
-        (args.dict_ma, "MA_Dict_Final.csv"),
-        (args.world_cities, "world_cities.csv")
-    ]
-
-    for dict_file, name in dict_files:
-        if not dict_file.exists():
-            errors.append(f"Dictionary file not found: {dict_file}")
-        else:
-            print(f"  ✓ Found {name}")
+    # Check dictionary files exist (loaded from default paths at module import)
+    # These are now validated in validate_reference_data(), so we just report that they're loaded
+    print(f"  ✓ Dictionary files loaded from default paths (reference_data/)")
 
     # Check Python libraries
     try:
@@ -366,105 +423,32 @@ def print_configuration(args):
     print()
 
 
-def load_reference_data(args):
-    """Load dictionary and reference files from configured paths"""
-    global corr, corr_set, madict, madict_set, cities
-    global countries, continents, people_names, english_stopwords
-    global modern_words, stems, days, months, roman_numerals
-    global stopwords_ne_ss, stopwords_numer
-
-    print("Loading reference data...")
+def validate_reference_data(args):
+    """Validate that reference data was loaded successfully at module import time"""
+    print("Validating reference data...")
 
     try:
-        # Load Master Corrections
-        corr = pd.read_csv(args.dict_corrections)
-        corr = corr.rename(columns={'lemma':'orig','correct_spelling':'stand'}).set_index('orig')
-        corr_set = set(corr.index)
+        # Check that dictionaries were loaded (they load at import time)
+        if corr is None or len(corr) == 0:
+            logging.error("Spelling corrections not loaded")
+            sys.exit(1)
         print(f"  ✓ Loaded {len(corr)} spelling corrections")
 
-        # Load Modern/Archaic Dictionary
-        madict = pd.read_csv(args.dict_ma)
-        madict = madict.set_index('orig')
-        madict_set = set(madict.index)
+        if madict is None or len(madict) == 0:
+            logging.error("Modern/archaic mappings not loaded")
+            sys.exit(1)
         print(f"  ✓ Loaded {len(madict)} modern/archaic mappings")
 
-        # Load world cities
-        cities_df = pd.read_csv(args.world_cities)
-        cities = set(city.lower() for city in cities_df['name'])
         print(f"  ✓ Loaded {len(cities)} city names")
-
-        # Load countries
-        countries = set([country.name.lower() for country in pycountry.countries])
         print(f"  ✓ Loaded {len(countries)} countries")
-
-        # Continents
-        continents = set(['africa', 'asia', 'europe', 'america', 'australia', 'antartica'])
-
-        # People names from NLTK
-        people_names = set([name.lower() for name in names.words()])
         print(f"  ✓ Loaded {len(people_names)} people names")
-
-        # English stopwords
-        english_stopwords = set(stopwords.words('english'))
         print(f"  ✓ Loaded {len(english_stopwords)} English stopwords")
-
-        # Modern words
-        modern_words = set([word.lower() for word in nltk_words.words()])
         print(f"  ✓ Loaded {len(modern_words)} modern words")
-
-        # Stems of modern words
-        stems = set([stemmer.stem(word) for word in modern_words])
-
-        # Days and months
-        days = set(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'])
-        months = set(['jan', 'feb', 'mar', 'apr', 'may', 'jun',
-                     'jul', 'aug', 'sep', 'oct', 'nov', 'dec'])
-
-        # Roman numerals (0-500)
-        roman_numerals = set([int_to_roman_lowercase(i) for i in range(501)])
-
-        # Combined stopword sets
-        stopwords_ne_ss = cities.union(
-            countries, people_names, english_stopwords, modern_words,
-            continents, stems, days, months, roman_numerals
-        )
-        stopwords_numer = english_stopwords.union(roman_numerals)
-
         print(f"  ✓ Total stopwords: {len(stopwords_ne_ss)}")
 
-    except FileNotFoundError as e:
-        logging.error(f"Dictionary file not found: {e}")
-        sys.exit(1)
     except Exception as e:
-        logging.error(f"Error loading reference data: {e}")
+        logging.error(f"Error validating reference data: {e}")
         sys.exit(1)
-
-
-def int_to_roman_lowercase(num):
-    """Convert integer to lowercase Roman numeral"""
-    if num == 0:
-        return "n"  # Special case for zero (nulla)
-
-    val = [
-        1000, 900, 500, 400,
-        100, 90, 50, 40,
-        10, 9, 5, 4,
-        1
-    ]
-    syms = [
-        "m", "cm", "d", "cd",
-        "c", "xc", "l", "xl",
-        "x", "ix", "v", "iv",
-        "i"
-    ]
-    roman_num = ''
-    i = 0
-    while num > 0:
-        for _ in range(num // val[i]):
-            roman_num += syms[i]
-            num -= val[i]
-        i += 1
-    return roman_num
 
 
 def get_EF_htids(input_path: Path) -> pd.DataFrame:
@@ -662,8 +646,8 @@ def main():
     validate_environment(args)
     print()
 
-    # Load reference data
-    load_reference_data(args)
+    # Validate reference data (loaded at module import time)
+    validate_reference_data(args)
     print()
 
     # Scan for HTRC files
