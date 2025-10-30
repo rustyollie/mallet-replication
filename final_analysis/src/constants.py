@@ -1,5 +1,5 @@
-EXPANDED_TRIMMED_PATH = './data/expanded_trimmed/output/'
-EXPANDED_TRIMMED_UNBINNED_PATH = './data/expanded_trimmed_unbinned/output/'
+MAIN_ANALYSIS_PATH = './data/main_analysis/output/'
+MAIN_ANALYSIS_UNBINNED_PATH = './data/main_analysis_unbinned/output/'
 ECONOMICS_PATH = './data/alternative_corners_economics/output/'
 LITERATURE_PATH = './data/alternative_corners_literature/output/'
 LAW_PATH = './data/alternative_corners_law/output/'

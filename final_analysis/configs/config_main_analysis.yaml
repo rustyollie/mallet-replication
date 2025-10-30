@@ -1,14 +1,14 @@
-version: 'expanded_trimmed'
+version: 'main_analysis'
 
 input_path : "./data/input_all/"
 
-temporary_path: "./data/expanded_trimmed/temporary/"
+temporary_path: "./data/main_analysis/temporary/"
 
-output_path: "./data/expanded_trimmed/output/"
+output_path: "./data/main_analysis/output/"
 
 eliminated_topics: []
 
-# Classification is subjective—check before running 'topic_volume_weights.py'
+# Classification is determined by categorization algorithm.
 categories:
   Religion:
     - 10

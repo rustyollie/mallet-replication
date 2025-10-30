@@ -1,8 +1,6 @@
 rm(list=ls())
 options(scipen=999)
 
-setwd("E:/grad_school/research/AIKR")
-
 library(yaml)
 library(tidyverse)
 library(fixest)

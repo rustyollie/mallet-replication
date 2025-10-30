@@ -15,8 +15,8 @@ def run_unbinned_analysis():
 
     config = load_config('configs/config_main_analysis.yaml')
 
-    config['temporary_path'] = './data/expanded_trimmed_unbinned/temporary/'
-    config['output_path'] = './data/expanded_trimmed_unbinned/output/'
+    config['temporary_path'] = './data/main_analysis_unbinned/temporary/'
+    config['output_path'] = './data/main_analysis_unbinned/output/'
 
     config['bins'] = False
 
@@ -34,7 +34,7 @@ def run_unbinned_analysis():
     # re-run predicted figures dropping obs before 1650
 
     config['min_regression_year'] = 1650
-    config['output_path'] = './data/expanded_trimmed_unbinned/output/drop_1650/'
+    config['output_path'] = './data/main_analysis_unbinned/output/drop_1650/'
     create_r_config(config, 'Rscripts/r_config.yaml')
     subprocess.run(['Rscript', 'Rscripts/marginal_predicted_figs.R'])
 

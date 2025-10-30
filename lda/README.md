@@ -431,19 +431,6 @@ This script is designed for **exact replication** of published research.
 | `random-seed` | 1 | Ensures identical initialization |
 | `optimize-interval` | 500 | Affects convergence behavior |
 
-### Why Are These Hardcoded?
-
-Changing these parameters produces a **fundamentally different topic model**:
-
-- **Different number of topics** → different topic structure and interpretations
-- **Different random seed** → different initialization → different final results
-- **Different optimization** → different hyperparameters → different distributions
-
-For **replication**, these must remain fixed so that:
-1. Multiple users get identical results
-2. Results can be compared to published analysis
-3. Science is reproducible
-
 ### Configurable Parameters
 
 These adapt to your computing environment **without affecting results**:
@@ -455,14 +442,6 @@ These adapt to your computing environment **without affecting results**:
 | Memory allocation | ✓ | System-dependent |
 | SLURM settings | ✓ | Cluster-dependent |
 | Stoplist path | ✓ | User preference |
-
-### Running Different Analyses
-
-If you want to explore different model configurations:
-1. Create a copy of the script
-2. Clearly label it as exploratory (not replication)
-3. Document all parameter changes
-4. **Do not call it a replication**
 
 ---
 
@@ -584,30 +563,6 @@ module load java/11
 
 ## Advanced Topics
 
-### Custom Stoplist
-
-Create a custom stoplist file with one word per line:
-
-```
-the
-a
-an
-is
-are
-was
-were
-```
-
-Use it:
-```bash
-./final_mallet_2025.sh \
-    --input-dir ./data \
-    --output-dir ./results \
-    --stoplist ./custom_stoplist.txt
-```
-
-**Tip:** The `default_stoplist.txt` provided is a template. Replace it with your actual project-specific stoplist.
-
 ### Testing on Small Dataset
 
 Use `--dry-run` to preview commands without executing:
@@ -652,94 +607,6 @@ tail -f mallet_run_JOBID.out
 scontrol show job JOBID
 ```
 
-### Analyzing Results
-
-After training, you can analyze the results using various tools:
-
-**Python example:**
-```python
-import pandas as pd
-
-# Load document-topic distributions
-topics = pd.read_csv('results/topics.txt',
-                     sep='\t',
-                     skiprows=0,
-                     header=None)
-
-# Parse topic proportions
-# (Custom parsing needed based on format)
-```
-
-**R example:**
-```r
-# Load topic keys
-keys <- read.table('results/keys.txt',
-                   sep='\t',
-                   header=FALSE)
-
-# Examine top words for each topic
-head(keys)
-```
-
-### Batch Processing Multiple Corpora
-
-To process multiple datasets:
-
-```bash
-#!/bin/bash
-
-# Process multiple corpora
-for corpus in corpus1 corpus2 corpus3; do
-    echo "Processing $corpus..."
-    ./final_mallet_2025.sh \
-        --input-dir ./data/$corpus \
-        --output-dir ./results/$corpus
-done
-```
-
----
-
-## Testing
-
-### Running Tests Without MALLET
-
-The project includes a comprehensive test suite that works **without requiring MALLET installation**:
-
-```bash
-cd test/
-./run_tests.sh
-```
-
-**What gets tested:**
-- ✅ Configuration file loading
-- ✅ CLI argument parsing
-- ✅ Precedence (config vs CLI)
-- ✅ Input/output validation
-- ✅ Error handling
-- ✅ Output file creation
-- ✅ Inference script
-- ✅ Model parameter immutability
-- ✅ Dry-run mode
-- ✅ Help text completeness
-
-**Test results:**
-```
-Total tests run:    12
-Tests passed:       32 assertions
-Tests failed:       0
-✓ ALL TESTS PASSED
-```
-
-The test suite uses a mock MALLET implementation, making it perfect for:
-- Development and debugging
-- Continuous Integration (CI/CD)
-- Verifying script functionality
-- Testing without large datasets
-
-See `test/README_TESTING.md` for detailed testing documentation.
-
----
-
 ## Support
 
 For issues or questions:
@@ -772,7 +639,7 @@ For issues or questions:
 **Files to commit to git:**
 - `final_mallet_2025.sh`, `mallet_inference.sh` (scripts)
 - `config.template.sh` (template, NOT `config.sh`)
-- `default_stoplist.txt` (or your custom stoplist)
+- `default_stoplist.txt` (your stoplist of words)
 - `README.md`, `.gitignore` (documentation)
 - `test/` directory (all test files)
 

@@ -1,7 +1,6 @@
 rm(list=ls())
 options(scipen=999)
 
-# setwd(dirname(this.path()))
 
 library(yaml)
 library(tidyverse)
