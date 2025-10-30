@@ -18,16 +18,59 @@ For the complete replication package for the paper "Enlightenment Ideals and Bel
 
 ---
 
+## Complete Replication Pipeline
+
+This repository provides the **topic modeling** component of the replication package. For the complete analysis pipeline:
+
+### Pipeline Overview
+
+```
+HTRC Data → [Preprocessing] → Clean Text → [MALLET] → Topic Model → [Analysis] → Figures & Tables
+```
+
+### Two-Stage Process
+
+**Stage 1: Text Preprocessing** (Optional - if starting from raw HTRC data)
+```bash
+cd Preprocessing/
+python preprocess_htrc.py --config config.sh
+```
+
+Converts HTRC Extracted Features files (`.json.bz2`) to cleaned text files (`.txt`).
+
+See [`Preprocessing/README.md`](Preprocessing/README.md) for detailed preprocessing documentation.
+
+**Stage 2: Topic Modeling** (This package)
+```bash
+./final_mallet_2025.sh --input-dir ./data --output-dir ./results
+```
+
+Trains MALLET LDA topic model on cleaned text.
+
+### Starting Point
+
+You can start from either:
+- **Raw HTRC data** → Use both Preprocessing + MALLET
+- **Pre-cleaned text files** → Use MALLET only (skip Preprocessing)
+
+---
+
 ## Purpose
 
 These scripts are designed for **exact replication** of published research results. Model parameters are intentionally hardcoded to ensure identical results across different computing environments.
 
 ## What's Included
 
+### MALLET Topic Modeling
 - `final_mallet_2025.sh` - Main topic modeling script
 - `mallet_inference.sh` - Apply trained model to new documents
 - `default_stoplist.txt` - Default stopword list (template)
-- `README.md` - This documentation
+
+### Text Preprocessing
+- `Preprocessing/` - HTRC text preprocessing pipeline
+  - `preprocess_htrc.py` - Main preprocessing script
+  - `reference_data/` - Required dictionary files
+  - See [`Preprocessing/README.md`](Preprocessing/README.md) for details
 
 ---
 
