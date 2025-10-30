@@ -533,7 +533,7 @@ def run_figures(config):
     industry_plots(avg_industry, config)
 
     #Create ESTC vs. HDL volume distribution plots
-    if config['version'] == 'expanded_trimmed':
+    if config['version'] == 'main_analysis':
         estc_data = pd.read_csv(config['input_path'] + 'estc_1500_to_1800.csv')
         estc_distribution_plot(config, estc_data, volume_counts_by_year, all_years)
 
