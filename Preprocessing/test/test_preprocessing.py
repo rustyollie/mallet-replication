@@ -47,8 +47,8 @@ class TestProcessingParameters(unittest.TestCase):
         self.assertIsInstance(MIN_WORD_FREQUENCY, int)
 
     def test_stopword_filters_all_enabled(self):
-        """All 8 stopword categories should be enabled"""
-        self.assertEqual(len(STOPWORD_FILTERS), 8)
+        """All 9 stopword categories should be enabled"""
+        self.assertEqual(len(STOPWORD_FILTERS), 9)
         expected_categories = {
             'cities', 'countries', 'people_names', 'english_stopwords',
             'modern_words', 'continents', 'days_months', 'roman_numerals', 'stems'
@@ -79,7 +79,7 @@ class TestCharacterCleaning(unittest.TestCase):
         """Greek corrections should work in full words"""
         test_str = "ºbſerved"  # observed with OCR errors
         result = test_str.translate(GREEK_CORRECTION)
-        self.assertEqual(result, "obserbed")
+        self.assertEqual(result, "observed")
 
     def test_ligature_replacements(self):
         """Ligatures should be correctly replaced"""
