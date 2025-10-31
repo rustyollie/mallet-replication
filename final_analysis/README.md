@@ -100,7 +100,7 @@ The files contain the following parameters:
 
 Below is a comprehensive list of figures and tables as well as their corresponding generating source code:
 
-| Figure/Table # | Source Code | Output File |
+| Figure/Table # | Source Code | Output File (in `data/paper_assets/`) |
 |---------------|---------|-------------|
 | Figure 1 | `src/figures.py` | `fig_1/total_volumes_raw.png` |
 | Figure 2 | `src/figures.py` | `fig_2/1550.png`<br>`fig_2/1600.png`<br>`fig_2/1650.png`<br>`fig_2/1700.png`<br>`fig_2/1750.png`<br>`fig_2/1800.png`<br>`fig_2/1850.png` |
