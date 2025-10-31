@@ -98,7 +98,7 @@ The files contain the following parameters:
 
 ## List of Figures and Tables
 
-Below is a comprehensive list of figures and tables as well as their corresponding generating source code:
+Below is a list of figures and tables produced by this analysis, as well as their corresponding generating source code:
 
 | Figure/Table # | Source Code | Output File (in `data/paper_assets/`) |
 |---------------|---------|-------------|
