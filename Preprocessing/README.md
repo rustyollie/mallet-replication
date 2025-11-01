@@ -235,15 +235,15 @@ Remove common function words and numeric markers using 2 categories:
 | **English Stopwords** | NLTK stopwords | ~179 | Common words (the, a, is, etc.) |
 | **Roman Numerals** | Generated (0-500) | 501 | Numeric markers (i, ii, iii, iv, etc.) |
 
-**Total filtered:** ~680 unique terms
+**Total filtered:** ~680 unique terms (stored in `filtered_stopwords` variable)
 
 **Note:** Stopword filtering is applied three times during processing:
-1. After spelling correction (line 216)
-2. After lemmatization (line 220)
-3. After modern/archaic mapping (line 226)
+1. After spelling correction (line 578 in `preprocess_htrc.py`)
+2. After lemmatization (line 581 in `preprocess_htrc.py`)
+3. After modern/archaic mapping (line 586 in `preprocess_htrc.py`)
 
 **Additional reference dictionaries (loaded but not used for filtering):**
-- Cities (~40,000), Countries (~249), Continents (6), People Names (~8,000), Modern Words (~235,000), Word Stems (~235,000), Days/Months (19) are loaded into `stopwords_ne_ss` but only used in Step 6 to validate stemmed forms, not for filtering words from the output
+- Cities (~40,000), Countries (~249), Continents (6), People Names (~8,000), Modern Words (~235,000), Word Stems (~235,000), Days/Months (19) are loaded into `stem_validation_dict` but only used in Step 6 to validate stemmed forms, not for filtering words from the output
 
 ### Step 9: Final Stemming
 
@@ -590,10 +590,10 @@ from preprocess_htrc import *
 from htrc_features import FeatureReader
 
 # Load single volume
-vol = FeatureReader(['path/to/volume.json.bz2']).first()
+volume = FeatureReader(['path/to/volume.json.bz2']).first()
 
 # Process
-clean_df = correct_words(vol)
+clean_df = process_volume_pipeline(volume)
 print(clean_df.head(20))
 ```
 
