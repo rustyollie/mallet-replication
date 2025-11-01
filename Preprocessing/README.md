@@ -642,7 +642,7 @@ Preprocessing/
 ├── preprocess_htrc.py          Main preprocessing script
 ├── config.template.sh          Configuration template
 ├── README.md                   This documentation
-├── QUICKSTART.md               Fast start guide
+├── CHANGELOG.md                Version history and changes
 ├── reference_data/             Dictionary files
 │   ├── README.md
 │   ├── Master_Corrections.csv
