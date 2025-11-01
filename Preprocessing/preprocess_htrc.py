@@ -162,11 +162,15 @@ months = set(['jan', 'feb', 'mar', 'apr', 'may', 'jun',
 # Generate Roman numerals (0-500)
 roman_numerals = set([int_to_roman_lowercase(i) for i in range(501)])
 
-# Combined stopword sets
+# Stopword sets with different purposes:
+# 1. stopwords_ne_ss: Large reference dictionary (~500k terms) used in stem_lem()
+#    to validate whether a stemmed form is a legitimate word (not for filtering)
 stopwords_ne_ss = cities.union(
     countries, people_names, english_stopwords, modern_words,
     continents, stems, days, months, roman_numerals
 )
+# 2. stopwords_numer: Small filtering set (~680 terms) used in correct_words()
+#    to actually remove words from output (English stopwords + Roman numerals only)
 stopwords_numer = english_stopwords.union(roman_numerals)
 
 # ============================================================================
@@ -444,7 +448,8 @@ def validate_reference_data(args):
         print(f"  ✓ Loaded {len(people_names)} people names")
         print(f"  ✓ Loaded {len(english_stopwords)} English stopwords")
         print(f"  ✓ Loaded {len(modern_words)} modern words")
-        print(f"  ✓ Total stopwords: {len(stopwords_ne_ss)}")
+        print(f"  ✓ Reference dictionary for stem validation: {len(stopwords_ne_ss)} terms")
+        print(f"  ✓ Stopwords filtered from output: {len(stopwords_numer)} terms (English stopwords + Roman numerals)")
 
     except Exception as e:
         logging.error(f"Error validating reference data: {e}")

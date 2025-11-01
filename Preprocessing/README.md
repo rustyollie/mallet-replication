@@ -212,7 +212,7 @@ Normalize word forms using POS-aware lemmatization.
 1. Try POS-aware lemmatization (NLTK WordNetLemmatizer)
 2. If unchanged, try lemmatization without POS
 3. If still unchanged, try stemming (Snowball Stemmer)
-4. Use stemmed form if it appears in modern dictionary
+4. Accept stemmed form if it appears in reference dictionary (cities, countries, names, English stopwords, modern words, continents, stems, days, months, Roman numerals)
 
 ### Step 7: Modern/Archaic Mapping
 
@@ -228,21 +228,22 @@ Examples:
 
 ### Step 8: Stopword Filtering
 
-Remove common words and named entities using 8 stopword categories:
+Remove common function words and numeric markers using 2 categories:
 
 | Category | Source | Count | Purpose |
 |----------|--------|-------|---------|
-| **Cities** | `world_cities.csv` | ~40,000 | Geographic entities |
-| **Countries** | pycountry | ~249 | Geographic entities |
-| **Continents** | Hardcoded | 6 | Geographic entities |
-| **People Names** | NLTK names | ~8,000 | Named entities |
-| **English Stopwords** | NLTK stopwords | ~179 | Common words |
-| **Modern Words** | NLTK words | ~235,000 | Contemporary vocabulary |
-| **Word Stems** | Computed | ~235,000 | Stemmed forms |
-| **Days/Months** | Hardcoded | 19 | Temporal markers |
-| **Roman Numerals** | Generated (0-500) | 501 | Numeric markers |
+| **English Stopwords** | NLTK stopwords | ~179 | Common words (the, a, is, etc.) |
+| **Roman Numerals** | Generated (0-500) | 501 | Numeric markers (i, ii, iii, iv, etc.) |
 
-**Total stopwords:** ~500,000+ unique terms
+**Total filtered:** ~680 unique terms
+
+**Note:** Stopword filtering is applied three times during processing:
+1. After spelling correction (line 216)
+2. After lemmatization (line 220)
+3. After modern/archaic mapping (line 226)
+
+**Additional reference dictionaries (loaded but not used for filtering):**
+- Cities (~40,000), Countries (~249), Continents (6), People Names (~8,000), Modern Words (~235,000), Word Stems (~235,000), Days/Months (19) are loaded into `stopwords_ne_ss` but only used in Step 6 to validate stemmed forms, not for filtering words from the output
 
 ### Step 9: Final Stemming
 

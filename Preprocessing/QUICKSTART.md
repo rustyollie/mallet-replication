@@ -125,7 +125,7 @@ python preprocess_htrc.py --config config.sh --num-processes 4
 4. Apply spelling corrections
 5. Lemmatize/stem words
 6. Map archaic → modern words
-7. Filter stopwords (8 categories)
+7. Filter stopwords (English stopwords + Roman numerals only)
 8. Filter by frequency (min 2 per volume)
 
 ### Output
