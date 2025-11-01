@@ -56,7 +56,7 @@ unto,to
 
 ### 3. world_cities.csv
 
-**Purpose:** Comprehensive list of world cities for geographic stopword filtering
+**Purpose:** Comprehensive list of world cities for stem validation reference
 
 **Format:**
 ```csv
@@ -75,9 +75,9 @@ New York,United States,New York,5128581
 
 **Size:** ~993 KB
 
-**Usage:** City names are extracted and used as stopwords. Geographic entities typically don't contribute meaningful information to topic modeling about ideas and concepts, so they are filtered out.
+**Usage:** City names are loaded into `stopwords_ne_ss` reference dictionary (~500k terms) along with countries, names, modern words, etc. This dictionary is used in Step 6 (lemmatization/stemming) to validate whether a stemmed form is a legitimate word. **Note:** City names are NOT filtered from the final output - they remain in the processed text. Only English stopwords and Roman numerals are actually filtered (see Step 8).
 
-**When applied:** Step 5 of processing pipeline (stopword filtering)
+**When applied:** Step 6 of processing pipeline (stem validation only)
 
 ---
 

@@ -7,7 +7,7 @@
 # SETUP INSTRUCTIONS:
 #   1. Copy this file:     cp config.template.sh config.sh
 #   2. Edit config.sh with your actual paths (NOT this template)
-#   3. Run the script:     ./final_mallet_2025.sh
+#   3. Run the script:     ./mallet_LDA.sh
 #
 # NOTES:
 #   - config.sh is gitignored (your personal settings, not committed)
@@ -55,7 +55,7 @@ NUM_THREADS=""
 # ============================================================================
 #
 # If submitting to SLURM (sbatch), you should edit the SLURM headers
-# directly in the script file (final_mallet_2025.sh, lines 12-20).
+# directly in the script file (mallet_LDA.sh, lines 12-20).
 #
 # Key settings to customize:
 #   #SBATCH --account=YOUR_ACCOUNT      # Your allocation
@@ -89,7 +89,7 @@ NUM_THREADS=""
 # ============================================================================
 
 # Inferencer File: Trained model from main script
-# - Produced by final_mallet_2025.sh (inferencer.mallet)
+# - Produced by mallet_LDA.sh (inferencer.mallet)
 # - Used by mallet_inference.sh to infer topics on new documents
 # - Example: "/Users/username/results/inferencer.mallet"
 INFERENCER_FILE=""

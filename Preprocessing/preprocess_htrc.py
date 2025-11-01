@@ -5,11 +5,8 @@ HTRC Text Preprocessing for Topic Modeling - Replication Script
 This script preprocesses HTRC Extracted Features files to produce clean text
 suitable for topic modeling with MALLET.
 
-Processing parameters (POS tags, minimum frequency, stopword filters) are
-FIXED for reproducibility. This ensures exact replication of published results.
-
-Version: 2.0
-Last Updated: 2025-10-30
+Version: 2.1
+Last Updated: 2025-11-01
 """
 
 import os
@@ -29,13 +26,6 @@ from nltk.corpus import words as nltk_words
 import argparse
 import re
 
-
-# ============================================================================
-# PROCESSING PARAMETERS - FIXED FOR REPLICATION
-# ============================================================================
-# These values are intentionally hardcoded to ensure reproducible results.
-# Changing them produces different output and breaks replication.
-# ============================================================================
 
 # POS tags to retain (standard practice for topic modeling)
 POS_TAGS = ('NE', 'NN', 'NNP', 'NNPS', 'JJ', 'JJS', 'JJR',
@@ -61,7 +51,7 @@ LIGATURES = {
     'ﬄ': 'ffl'
 }
 
-# Stopword categories (all enabled for replication)
+# Stopword categories 
 STOPWORD_FILTERS = {
     'cities': True,
     'countries': True,
@@ -83,8 +73,8 @@ stemmer = SnowballStemmer('english')
 idx = pd.IndexSlice
 
 # Character deletion (remove all non-alphabetic characters)
-delchars = ''.join(c for c in map(chr, range(256)) if not c.isalpha())
-alleraser = str.maketrans('', '', delchars)
+non_alpha_chars = ''.join(c for c in map(chr, range(256)) if not c.isalpha())
+non_alpha_translator = str.maketrans('', '', non_alpha_chars)
 
 
 # ============================================================================
@@ -93,7 +83,6 @@ alleraser = str.maketrans('', '', delchars)
 # These dictionaries are loaded when the module is imported (not at runtime).
 # This ensures each multiprocessing worker gets its own copy of the data.
 # Dictionaries are loaded from the reference_data/ subdirectory.
-# This matches the original PT_Nov2024.py behavior for multiprocessing.
 # ============================================================================
 
 # Helper function for Roman numerals (needed before loading)
@@ -129,14 +118,14 @@ DEFAULT_DICT_CORRECTIONS = Path(__file__).parent / "reference_data" / "Master_Co
 DEFAULT_DICT_MA = Path(__file__).parent / "reference_data" / "MA_Dict_Final.csv"
 DEFAULT_WORLD_CITIES = Path(__file__).parent / "reference_data" / "world_cities.csv"
 
-# Load correction dictionaries
-corr = pd.read_csv(DEFAULT_DICT_CORRECTIONS)
-corr = corr.rename(columns={'lemma':'orig','correct_spelling':'stand'}).set_index('orig')
-corr_set = set(corr.index)
+# Load spelling corrections dictionaries
+spelling_corrections = pd.read_csv(DEFAULT_DICT_CORRECTIONS)
+spelling_corrections = spelling_corrections.rename(columns={'lemma':'orig','correct_spelling':'stand'}).set_index('orig')
+spelling_corrections_index = set(spelling_corrections.index)
 
-madict = pd.read_csv(DEFAULT_DICT_MA)
-madict = madict.set_index('orig')
-madict_set = set(madict.index)
+archaic_to_modern_dict = pd.read_csv(DEFAULT_DICT_MA)
+archaic_to_modern_dict = archaic_to_modern_dict.set_index('orig')
+archaic_words_index = set(archaic_to_modern_dict.index)
 
 # Load geographic data
 cities_df = pd.read_csv(DEFAULT_WORLD_CITIES)
@@ -162,12 +151,16 @@ months = set(['jan', 'feb', 'mar', 'apr', 'may', 'jun',
 # Generate Roman numerals (0-500)
 roman_numerals = set([int_to_roman_lowercase(i) for i in range(501)])
 
-# Combined stopword sets
-stopwords_ne_ss = cities.union(
+# Stopword sets with different purposes:
+# 1. stem_validation_dict: Large reference dictionary (~500k terms) used in lemmatize_or_stem()
+#    to validate whether a stemmed form is a legitimate word (not for filtering)
+stem_validation_dict = cities.union(
     countries, people_names, english_stopwords, modern_words,
     continents, stems, days, months, roman_numerals
 )
-stopwords_numer = english_stopwords.union(roman_numerals)
+# 2. filtered_stopwords: Small filtering set (~680 terms) used in process_volume_pipeline()
+#    to actually remove words from output (English stopwords + Roman numerals only)
+filtered_stopwords = english_stopwords.union(roman_numerals)
 
 # ============================================================================
 
@@ -288,9 +281,7 @@ For detailed documentation, see README.md
         if not args.error_log and 'ERROR_LOG' in config:
             args.error_log = Path(config['ERROR_LOG'])
 
-    # Validate required arguments
-    # Note: Dictionary paths are now loaded from default locations at module import time
-    # and are no longer required as command-line arguments
+
     required = {
         'input': args.input,
         'output': args.output
@@ -394,7 +385,7 @@ def validate_environment(args):
 
 
 def print_configuration(args):
-    """Display configuration for transparency"""
+    """Display configuration for normalize_and_clean_wordparency"""
     print("\n" + "="*80)
     print("HTRC Preprocessing - Replication Script")
     print("="*80)
@@ -429,29 +420,30 @@ def validate_reference_data(args):
 
     try:
         # Check that dictionaries were loaded (they load at import time)
-        if corr is None or len(corr) == 0:
+        if spelling_corrections is None or len(spelling_corrections) == 0:
             logging.error("Spelling corrections not loaded")
             sys.exit(1)
-        print(f"  ✓ Loaded {len(corr)} spelling corrections")
+        print(f"  ✓ Loaded {len(spelling_corrections)} spelling corrections")
 
-        if madict is None or len(madict) == 0:
+        if archaic_to_modern_dict is None or len(archaic_to_modern_dict) == 0:
             logging.error("Modern/archaic mappings not loaded")
             sys.exit(1)
-        print(f"  ✓ Loaded {len(madict)} modern/archaic mappings")
+        print(f"  ✓ Loaded {len(archaic_to_modern_dict)} modern/archaic mappings")
 
         print(f"  ✓ Loaded {len(cities)} city names")
         print(f"  ✓ Loaded {len(countries)} countries")
         print(f"  ✓ Loaded {len(people_names)} people names")
         print(f"  ✓ Loaded {len(english_stopwords)} English stopwords")
         print(f"  ✓ Loaded {len(modern_words)} modern words")
-        print(f"  ✓ Total stopwords: {len(stopwords_ne_ss)}")
+        print(f"  ✓ Reference dictionary for stem validation: {len(stem_validation_dict)} terms")
+        print(f"  ✓ Stopwords filtered from output: {len(filtered_stopwords)} terms (English stopwords + Roman numerals)")
 
     except Exception as e:
         logging.error(f"Error validating reference data: {e}")
         sys.exit(1)
 
 
-def get_EF_htids(input_path: Path) -> pd.DataFrame:
+def scan_htrc_files(input_path: Path) -> pd.DataFrame:
     """
     Generate a DataFrame of HTRC Extracted Features files.
 
@@ -480,11 +472,11 @@ def getFeatureReader(final_ids):
     """Create FeatureReader from file paths"""
     # Build file paths (cross-platform)
     file_paths = [str(Path(row['Path']) / row['Filename']) for _, row in final_ids.iterrows()]
-    fr = FeatureReader(file_paths)
-    return fr
+    corpus = FeatureReader(file_paths)
+    return corpus
 
 
-def stem_lem(cleaned):
+def lemmatize_or_stem(cleaned):
     """Lemmatize or stem a word based on POS tag"""
     if cleaned[1].startswith('N'):
         lemmatized = lemmatizer.lemmatize(cleaned[0], 'n')
@@ -502,16 +494,16 @@ def stem_lem(cleaned):
 
     if lemmatized == cleaned[0]:
         stem = stemmer.stem(cleaned[0])  # Try stemming
-        if stem in stopwords_ne_ss:
+        if stem in stem_validation_dict:
             return stem
 
     return lemmatized
 
 
-def trans(row):
+def normalize_and_clean_word(row):
     """Transform a word: remove punctuation, fix Greek chars, normalize Unicode"""
     string = row.name[0]
-    string = string.translate(alleraser)
+    string = string.translate(non_alpha_translator)
     string = string.translate(GREEK_CORRECTION)
 
     # Fix ligatures
@@ -525,7 +517,7 @@ def trans(row):
 def clean_punctuation(words):
     """Clean punctuation and filter by minimum length"""
     words_copy = words.copy()
-    words_copy[['corrected']] = words_copy.apply(trans, axis=1)
+    words_copy[['corrected']] = words_copy.apply(normalize_and_clean_word, axis=1)
     words_copy = words_copy.reset_index().drop(columns='lowercase')
     return words_copy[words_copy['corrected'].map(len) > MIN_WORD_LENGTH].sort_values('count', ascending=False)
 
@@ -533,9 +525,9 @@ def clean_punctuation(words):
 def ma_search(row):
     """Look up word in Modern/Archaic dictionary"""
     try:
-        if row in madict_set:
-            correction = madict.loc[row]
-            return correction.stand
+        if row in archaic_words_index:
+            spelling_correctionsection = archaic_to_modern_dict.loc[row]
+            return spelling_correctionsection.stand
         else:
             return row
     except Exception as e:
@@ -548,50 +540,50 @@ def stem(row):
     return stemmer.stem(row)
 
 
-def corr_search(row):
+def spell_correction_lookup(row):
     """Look up word in spelling corrections dictionary"""
     try:
-        if row in corr_set:
-            correction = corr.loc[row]
-            return correction.stand
+        if row in spelling_corrections_index:
+            spelling_correctionsection = spelling_corrections.loc[row]
+            return spelling_correctionsection.stand
         else:
             return row
     except Exception as e:
-        logging.error(f"Error in corr_search: {e}")
+        logging.error(f"Error in spell_correction_lookup: {e}")
         return 'error'
 
 
-def correct_words(vol):
+def process_volume_pipeline(volume):
     """Process a volume: extract tokens, clean, lemmatize, filter"""
-    tl = vol.tokenlist(pages=False, case=False, section='body')
-    tl.index = tl.index.droplevel(0)
-    clean_tl = tl.loc[idx[:, POS_TAGS],]
-    clean_tl = clean_punctuation(clean_tl)
-    clean_tl = clean_tl.assign(corrected=clean_tl.corrected.map(corr_search))
-    clean_tl = clean_tl.groupby(['corrected','pos']).sum()
-    clean_tl = clean_tl[clean_tl['count'] >= MIN_WORD_FREQUENCY]
-    clean_tl = clean_tl.loc[~clean_tl.index.get_level_values('corrected').isin(stopwords_numer)]
-    clean_tl = clean_tl.assign(lemma=clean_tl.index.map(stem_lem))
-    clean_tl = clean_tl.groupby('lemma').sum()
-    clean_tl = clean_tl.loc[~clean_tl.index.get_level_values('lemma').isin(stopwords_numer)]
-    clean_ss = clean_tl.loc[~clean_tl.index.get_level_values('lemma').isin(madict_set)]
-    clean_ma = clean_tl.loc[clean_tl.index.get_level_values('lemma').isin(madict_set)]
-    clean_ma = clean_ma.assign(corrected_ma=clean_ma.index.get_level_values('lemma').map(ma_search))
-    clean_ma = clean_ma.groupby('corrected_ma').sum()
-    clean_ma = clean_ma.loc[~clean_ma.index.get_level_values('corrected_ma').isin(stopwords_numer)]
-    clean_ss_ma = pd.concat([clean_ss, clean_ma])
-    clean_ss_ma = clean_ss_ma.assign(stem=clean_ss_ma.index.map(stem))
-    clean_ss_ma = clean_ss_ma.groupby('stem').sum()
-    return clean_ss_ma
+    token_list = volume.tokenlist(pages=False, case=False, section='body')
+    token_list.index = token_list.index.droplevel(0)
+    filtered_tokens = token_list.loc[idx[:, POS_TAGS],]
+    filtered_tokens = clean_punctuation(filtered_tokens)
+    filtered_tokens = filtered_tokens.assign(corrected=filtered_tokens.corrected.map(spell_correction_lookup))
+    filtered_tokens = filtered_tokens.groupby(['corrected','pos']).sum()
+    filtered_tokens = filtered_tokens[filtered_tokens['count'] >= MIN_WORD_FREQUENCY]
+    filtered_tokens = filtered_tokens.loc[~filtered_tokens.index.get_level_values('corrected').isin(filtered_stopwords)]
+    filtered_tokens = filtered_tokens.assign(lemma=filtered_tokens.index.map(lemmatize_or_stem))
+    filtered_tokens = filtered_tokens.groupby('lemma').sum()
+    filtered_tokens = filtered_tokens.loc[~filtered_tokens.index.get_level_values('lemma').isin(filtered_stopwords)]
+    words_without_archaic = filtered_tokens.loc[~filtered_tokens.index.get_level_values('lemma').isin(archaic_words_index)]
+    words_with_archaic = filtered_tokens.loc[filtered_tokens.index.get_level_values('lemma').isin(archaic_words_index)]
+    words_with_archaic = words_with_archaic.assign(corrected_ma=words_with_archaic.index.get_level_values('lemma').map(ma_search))
+    words_with_archaic = words_with_archaic.groupby('corrected_ma').sum()
+    words_with_archaic = words_with_archaic.loc[~words_with_archaic.index.get_level_values('corrected_ma').isin(filtered_stopwords)]
+    combined_processed_words = pd.concat([words_without_archaic, words_with_archaic])
+    combined_processed_words = combined_processed_words.assign(stem=combined_processed_words.index.map(stem))
+    combined_processed_words = combined_processed_words.groupby('stem').sum()
+    return combined_processed_words
 
 
-def process_volume(vol, output_path):
+def process_volume(volume, output_path):
     """Process a single volume and write to file"""
-    save_path = output_path / f"{vol.id.replace(':','+').replace('/','=')}.txt"
+    save_path = output_path / f"{volume.id.replace(':','+').replace('/','=')}.txt"
     try:
-        clean_df = correct_words(vol)
+        clean_df = process_volume_pipeline(volume)
         if clean_df is None or len(clean_df) == 0:
-            logging.warning(f"No clean data for volume {vol.id}")
+            logging.warning(f"No clean data for volume {volume.id}")
             return None
         clean_df = clean_df.sort_values('count', ascending=False)
         with open(save_path, 'w', encoding='utf8') as output:
@@ -600,25 +592,25 @@ def process_volume(vol, output_path):
                output.write(str(to_print[0]))
         return clean_df
     except Exception as e:
-        logging.error(f"Error processing volume {vol.id}: {e}")
+        logging.error(f"Error processing volume {volume.id}: {e}")
         return None
 
 
 def process_volume_wrapper(args_tuple):
     """Wrapper for multiprocessing"""
-    vol, output_path = args_tuple
-    return process_volume(vol, output_path)
+    volume, output_path = args_tuple
+    return process_volume(volume, output_path)
 
 
-def CleanAndWrite(fr, output_path, num_processes=None):
+def CleanAndWrite(corpus, output_path, num_processes=None):
     """Process all volumes using multiprocessing"""
-    total_volumes = len(fr)
+    total_volumes = len(corpus)
 
     if num_processes is None:
         num_processes = mp.cpu_count()
 
     # Prepare arguments for multiprocessing
-    volumes_with_path = [(vol, output_path) for vol in fr.volumes()]
+    volumes_with_path = [(volume, output_path) for volume in corpus.volumes()]
 
     with mp.Pool(processes=num_processes) as pool:
         results = list(tqdm(
@@ -654,15 +646,15 @@ def main():
     print("="*80)
     print("Step 1/3: Scanning for HTRC Extracted Features files")
     print("="*80)
-    EF_ids = get_EF_htids(args.input)
-    print(f"Found {len(EF_ids)} HTRC Extracted Features files")
+    htrc_files = scan_htrc_files(args.input)
+    print(f"Found {len(htrc_files)} HTRC Extracted Features files")
     print()
 
     if args.dry_run:
         print("="*80)
         print("DRY RUN MODE")
         print("="*80)
-        print(f"\nWould process {len(EF_ids)} volumes")
+        print(f"\nWould process {len(htrc_files)} volumes")
         print(f"Output directory: {args.output}")
         print(f"Output format: One .txt file per volume")
         print("\nRemove --dry-run flag to execute processing.")
@@ -676,7 +668,7 @@ def main():
     print("="*80)
     print("Step 2/3: Initializing HTRC FeatureReader")
     print("="*80)
-    corpus = getFeatureReader(EF_ids)
+    corpus = getFeatureReader(htrc_files)
     print(f"FeatureReader initialized with {len(corpus)} volumes")
     print()
 
