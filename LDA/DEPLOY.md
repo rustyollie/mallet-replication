@@ -8,18 +8,14 @@ This guide walks you through deploying the MALLET replication scripts on your HP
 
 ```
 mallet_replication/
-├── final_mallet_2025.sh       Main topic modeling script
+├── mallet_LDA.sh              Main topic modeling script
 ├── mallet_inference.sh        Inference on new documents
 ├── config.template.sh         Configuration template
 ├── default_stoplist.txt       Default stopword list (placeholder)
 ├── .gitignore                 Git ignore rules
 ├── README.md                  Complete documentation
 ├── DEPLOY.md                  This deployment guide
-├── QUICKSTART.md              Quick reference card
-└── test/                      Testing suite
-    ├── mock_mallet.sh         Mock MALLET for testing
-    ├── run_tests.sh           Test suite
-    └── README_TESTING.md      Testing documentation
+└── QUICKSTART.md              Quick reference card
 ```
 
 ---
@@ -69,9 +65,8 @@ cd mallet_replication
 ### 2. Make Scripts Executable
 
 ```bash
-chmod +x final_mallet_2025.sh
+chmod +x mallet_LDA.sh
 chmod +x mallet_inference.sh
-chmod +x test/*.sh
 ```
 
 ### 3. Verify MALLET Works
@@ -126,7 +121,7 @@ NUM_THREADS="24"
 #### C. Edit SLURM Headers (HPC Users)
 
 ```bash
-vim final_mallet_2025.sh
+vim mallet_LDA.sh
 ```
 
 Edit lines 12-20:
@@ -149,20 +144,10 @@ Edit lines 12-20:
 
 ### 5. Test the Configuration
 
-#### Option A: Mock Test (No MALLET Required)
+Use dry-run to preview commands without executing:
 
 ```bash
-cd test/
-./run_tests.sh
-cd ..
-```
-
-Expected output: "✓ ALL TESTS PASSED"
-
-#### Option B: Dry-Run (Shows Commands Without Running)
-
-```bash
-./final_mallet_2025.sh --dry-run
+./mallet_LDA.sh --dry-run
 ```
 
 Review the output carefully:
@@ -188,10 +173,10 @@ vim config.sh
 #   OUTPUT_DIR="$HOME/mallet_test_output"
 
 # Run test
-./final_mallet_2025.sh
+./mallet_LDA.sh
 
 # Or submit to SLURM
-sbatch final_mallet_2025.sh
+sbatch mallet_LDA.sh
 ```
 
 **Verify test results:**
@@ -222,7 +207,7 @@ NUM_THREADS="48"
 
 ```bash
 # Submit to SLURM
-sbatch final_mallet_2025.sh
+sbatch mallet_LDA.sh
 
 # Note the job ID
 # Output: Submitted batch job 12345678
@@ -292,10 +277,10 @@ sacctmgr show user $USER
 sinfo
 
 # Test SLURM headers
-sbatch --test-only final_mallet_2025.sh
+sbatch --test-only mallet_LDA.sh
 ```
 
-**Fix:** Edit SLURM headers in final_mallet_2025.sh (lines 12-20)
+**Fix:** Edit SLURM headers in mallet_LDA.sh (lines 12-20)
 
 ### Issue: Job runs but produces no output
 
@@ -332,7 +317,7 @@ ls -la /pl/active/econlab/Cleaned_Nov2024/
 | Configuration | Hardcoded in script | config.sh file |
 | Paths | Edit script each time | Edit config once |
 | Output naming | Hardcoded date | Flexible naming |
-| Testing | Need MALLET | Mock tests available |
+| Testing | Need MALLET | Dry-run available |
 | Documentation | Minimal | Comprehensive |
 | Validation | None | Extensive checks |
 | Error messages | Cryptic | Clear and helpful |
@@ -390,7 +375,7 @@ ls -lh $NEW_OUTPUT/
 ```bash
 # Just edit config and run
 vim config.sh  # Update OUTPUT_DIR or other settings
-sbatch final_mallet_2025.sh
+sbatch mallet_LDA.sh
 ```
 
 ### For Inference on New Documents:
@@ -429,21 +414,14 @@ cd test/
 1. **Check documentation:**
    - `README.md` - Complete documentation
    - `QUICKSTART.md` - Quick reference
-   - `test/README_TESTING.md` - Testing details
 
 2. **Run help:**
    ```bash
-   ./final_mallet_2025.sh --help
+   ./mallet_LDA.sh --help
    ./mallet_inference.sh --help
    ```
 
-3. **Run tests:**
-   ```bash
-   cd test/
-   ./run_tests.sh
-   ```
-
-4. **Check SLURM output:**
+3. **Check SLURM output:**
    ```bash
    cat mallet_run_JOBID.out
    ```
@@ -454,8 +432,7 @@ cd test/
 
 Before considering deployment complete:
 
-- [ ] All tests pass (`cd test/ && ./run_tests.sh`)
-- [ ] Dry-run looks correct (`./final_mallet_2025.sh --dry-run`)
+- [ ] Dry-run looks correct (`./mallet_LDA.sh --dry-run`)
 - [ ] Small dataset test successful
 - [ ] Full run submitted successfully
 - [ ] Output files created as expected
@@ -471,17 +448,16 @@ Before considering deployment complete:
 # Setup (once)
 unzip mallet_replication.zip
 cd mallet_replication
-chmod +x *.sh test/*.sh
+chmod +x *.sh
 cp config.template.sh config.sh
 vim config.sh  # Edit paths
-vim final_mallet_2025.sh  # Edit SLURM headers
+vim mallet_LDA.sh  # Edit SLURM headers
 
 # Test
-cd test/ && ./run_tests.sh && cd ..
-./final_mallet_2025.sh --dry-run
+./mallet_LDA.sh --dry-run
 
 # Run
-sbatch final_mallet_2025.sh
+sbatch mallet_LDA.sh
 
 # Monitor
 squeue -u $USER
@@ -495,4 +471,4 @@ ls -lh /path/to/output/
 
 **You're all set! The framework is designed to be safer, clearer, and more maintainable than the original script while producing identical results.**
 
-For questions, check README.md or run `./final_mallet_2025.sh --help`
+For questions, check README.md or run `./mallet_LDA.sh --help`

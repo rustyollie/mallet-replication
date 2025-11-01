@@ -44,7 +44,7 @@ echo "Copying files to package directory..."
 
 # Core scripts
 echo "  → Core scripts"
-cp final_mallet_2025.sh "$PACKAGE_DIR/"
+cp mallet_LDA.sh "$PACKAGE_DIR/"
 cp mallet_inference.sh "$PACKAGE_DIR/"
 
 # Configuration
@@ -59,20 +59,11 @@ cp README.md "$PACKAGE_DIR/"
 cp DEPLOY.md "$PACKAGE_DIR/"
 cp QUICKSTART.md "$PACKAGE_DIR/"
 
-# Test suite
-echo "  → Test suite"
-mkdir -p "$PACKAGE_DIR/test"
-cp test/mock_mallet.sh "$PACKAGE_DIR/test/"
-cp test/run_tests.sh "$PACKAGE_DIR/test/"
-cp test/README_TESTING.md "$PACKAGE_DIR/test/"
-
 # Make scripts executable
 echo ""
 echo "Setting permissions..."
-chmod +x "$PACKAGE_DIR/final_mallet_2025.sh"
+chmod +x "$PACKAGE_DIR/mallet_LDA.sh"
 chmod +x "$PACKAGE_DIR/mallet_inference.sh"
-chmod +x "$PACKAGE_DIR/test/mock_mallet.sh"
-chmod +x "$PACKAGE_DIR/test/run_tests.sh"
 
 # Create manifest
 echo ""
@@ -88,7 +79,7 @@ Contents:
 ---------
 
 Core Scripts:
-  - final_mallet_2025.sh       Main topic modeling script
+  - mallet_LDA.sh       Main topic modeling script
   - mallet_inference.sh        Inference on new documents
 
 Configuration:
@@ -101,11 +92,6 @@ Documentation:
   - DEPLOY.md                  Server deployment guide
   - QUICKSTART.md              Quick reference
   - MANIFEST.txt               This file
-
-Testing:
-  - test/mock_mallet.sh        Mock MALLET for testing
-  - test/run_tests.sh          Comprehensive test suite
-  - test/README_TESTING.md     Testing documentation
 
 Setup Instructions:
 -------------------
@@ -137,7 +123,6 @@ Requirements:
 Support:
 --------
   - Run scripts with --help for usage
-  - Check test/run_tests.sh for validation
   - Review README.md for troubleshooting
 
 License:
@@ -204,7 +189,7 @@ echo ""
 echo "3. Configure and run:"
 echo "   cp config.template.sh config.sh"
 echo "   vim config.sh  # Edit paths"
-echo "   sbatch final_mallet_2025.sh"
+echo "   sbatch mallet_LDA.sh"
 echo ""
 echo "For detailed instructions, see DEPLOY.md in the package"
 echo ""

@@ -26,7 +26,7 @@ TEMP_MALLET=""                        # Temporary .mallet file if needed
 # Load settings from config.sh if it exists
 # Command-line arguments will override these settings
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CONFIG_FILE="$SCRIPT_DIR/config.sh"
+CONFIG_FILE="${SLURM_SUBMIT_DIR:-$SCRIPT_DIR}/config.sh"
 
 if [[ -f "$CONFIG_FILE" ]]; then
     # Source the config file
@@ -96,7 +96,7 @@ EXAMPLES:
 
 WORKFLOW:
 
-    Step 1: Train model with final_mallet_2025.sh
+    Step 1: Train model with mallet_LDA.sh
             This produces inferencer.mallet file
 
     Step 2: Use this script to apply model to new documents
@@ -184,7 +184,7 @@ validate_environment() {
     # Check if inferencer file exists
     if [[ ! -f "$INFERENCER_FILE" ]]; then
         echo "ERROR: Inferencer file not found: $INFERENCER_FILE"
-        echo "  You need to train a model first using final_mallet_2025.sh"
+        echo "  You need to train a model first using mallet_LDA.sh"
         ((errors++))
     fi
 

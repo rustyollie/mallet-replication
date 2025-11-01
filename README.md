@@ -42,7 +42,7 @@ See [`Preprocessing/README.md`](Preprocessing/README.md) for detailed preprocess
 
 **Stage 2: Topic Modeling** (This package)
 ```bash
-./final_mallet_2025.sh --input-dir ./data --output-dir ./results
+./mallet_LDA.sh --input-dir ./data --output-dir ./results
 ```
 
 Trains MALLET LDA topic model on cleaned text.
@@ -62,7 +62,7 @@ These scripts are designed for **exact replication** of published research resul
 ## What's Included
 
 ### MALLET Topic Modeling
-- `final_mallet_2025.sh` - Main topic modeling script
+- `mallet_LDA.sh` - Main topic modeling script
 - `mallet_inference.sh` - Apply trained model to new documents
 - `default_stoplist.txt` - Default stopword list (template)
 
@@ -172,19 +172,19 @@ OUTPUT_DIR="/path/to/your/results"
 ### 3. Make Scripts Executable
 
 ```bash
-chmod +x final_mallet_2025.sh mallet_inference.sh
+chmod +x mallet_LDA.sh mallet_inference.sh
 ```
 
 ### 4. Run the Script
 
 **Using config file (recommended):**
 ```bash
-./final_mallet_2025.sh
+./mallet_LDA.sh
 ```
 
 **Or using command-line arguments:**
 ```bash
-./final_mallet_2025.sh \
+./mallet_LDA.sh \
     --input-dir ./my_documents \
     --output-dir ./results
 ```
@@ -218,7 +218,7 @@ NUM_THREADS="48"  # Or leave empty for auto-detect
 
 ### 2. Customize SLURM Headers
 
-Edit `final_mallet_2025.sh` (lines 12-20) to match your HPC environment:
+Edit `mallet_LDA.sh` (lines 12-20) to match your HPC environment:
 
 ```bash
 #SBATCH --account=YOUR_ACCOUNT         # Your allocation
@@ -231,12 +231,12 @@ Edit `final_mallet_2025.sh` (lines 12-20) to match your HPC environment:
 
 **Using config file (recommended):**
 ```bash
-sbatch final_mallet_2025.sh
+sbatch mallet_LDA.sh
 ```
 
 **Or override config with CLI arguments:**
 ```bash
-sbatch final_mallet_2025.sh \
+sbatch mallet_LDA.sh \
     --output-dir /pl/active/your_lab/special_run \
     --num-threads 64
 ```
@@ -276,7 +276,7 @@ cp config.template.sh config.sh
 vim config.sh  # Use your preferred editor
 
 # 3. Run (config file is used automatically)
-./final_mallet_2025.sh
+./mallet_LDA.sh
 ```
 
 ### Configuration Precedence
@@ -291,15 +291,15 @@ Example:
 # config.sh has: INPUT_DIR="/data/corpus1"
 
 # This uses corpus1 from config.sh
-./final_mallet_2025.sh
+./mallet_LDA.sh
 
 # This overrides to use corpus2 instead
-./final_mallet_2025.sh --input-dir /data/corpus2
+./mallet_LDA.sh --input-dir /data/corpus2
 ```
 
 ### Key Settings
 
-**Main Script (`final_mallet_2025.sh`):**
+**Main Script (`mallet_LDA.sh`):**
 ```bash
 INPUT_DIR="/path/to/input/documents"     # Required
 OUTPUT_DIR="/path/to/output/results"     # Required
@@ -354,12 +354,12 @@ For reproducibility, document your `config.sh` settings in your paper's methods 
 
 **Basic usage:**
 ```bash
-./final_mallet_2025.sh --input-dir ./data --output-dir ./results
+./mallet_LDA.sh --input-dir ./data --output-dir ./results
 ```
 
 **Custom stoplist:**
 ```bash
-./final_mallet_2025.sh \
+./mallet_LDA.sh \
     --input-dir ./data \
     --output-dir ./results \
     --stoplist ./my_stoplist.txt
@@ -367,7 +367,7 @@ For reproducibility, document your `config.sh` settings in your paper's methods 
 
 **Specify threads:**
 ```bash
-./final_mallet_2025.sh \
+./mallet_LDA.sh \
     --input-dir ./data \
     --output-dir ./results \
     --num-threads 32
@@ -375,7 +375,7 @@ For reproducibility, document your `config.sh` settings in your paper's methods 
 
 **Preview without running:**
 ```bash
-./final_mallet_2025.sh \
+./mallet_LDA.sh \
     --input-dir ./data \
     --output-dir ./results \
     --dry-run
@@ -461,7 +461,7 @@ chmod +x mallet_inference.sh
 
 ```bash
 # Step 1: Train model on corpus
-./final_mallet_2025.sh \
+./mallet_LDA.sh \
     --input-dir ./training_data \
     --output-dir ./model_output
 
@@ -480,7 +480,6 @@ The output file contains document-topic distributions for the new documents, in 
 
 ## Model Parameters (Hardcoded for Replication)
 
-This script is designed for **exact replication** of published research.
 
 ### Fixed Parameters
 
@@ -490,22 +489,8 @@ This script is designed for **exact replication** of published research.
 | `random-seed` | 1 | Ensures identical initialization |
 | `optimize-interval` | 500 | Affects convergence behavior |
 
-### Why Are These Hardcoded?
-
-Changing these parameters produces a **fundamentally different topic model**:
-
-- **Different number of topics** → different topic structure and interpretations
-- **Different random seed** → different initialization → different final results
-- **Different optimization** → different hyperparameters → different distributions
-
-For **replication**, these must remain fixed so that:
-1. Multiple users get identical results
-2. Results can be compared to published analysis
-3. Science is reproducible
 
 ### Configurable Parameters
-
-These adapt to your computing environment **without affecting results**:
 
 | Parameter | Configurable? | Why? |
 |-----------|---------------|------|
@@ -514,14 +499,6 @@ These adapt to your computing environment **without affecting results**:
 | Memory allocation | ✓ | System-dependent |
 | SLURM settings | ✓ | Cluster-dependent |
 | Stoplist path | ✓ | User preference |
-
-### Running Different Analyses
-
-If you want to explore different model configurations:
-1. Create a copy of the script
-2. Clearly label it as exploratory (not replication)
-3. Document all parameter changes
-4. **Do not call it a replication**
 
 ---
 
@@ -558,7 +535,7 @@ mallet --help
 rm -rf ./results
 
 # Option 2: Use different output directory
-./final_mallet_2025.sh \
+./mallet_LDA.sh \
     --input-dir ./data \
     --output-dir ./results_v2
 ```
@@ -579,7 +556,7 @@ rm -rf ./results
 
 **Solution:**
 ```bash
-chmod +x final_mallet_2025.sh
+chmod +x mallet_LDA.sh
 chmod +x mallet_inference.sh
 ```
 
@@ -598,7 +575,7 @@ For local machine: Increase Java heap size
 ```bash
 # Set MALLET memory before running
 export MALLET_MEMORY=8g
-./final_mallet_2025.sh --input-dir ./data --output-dir ./results
+./mallet_LDA.sh --input-dir ./data --output-dir ./results
 ```
 
 ### Module Load Errors (HPC)
@@ -616,7 +593,7 @@ MODULE_JAVA="java/11"  # Or whatever is available
 
 # Or load manually before running
 module load java/11
-./final_mallet_2025.sh --input-dir ./data --output-dir ./results
+./mallet_LDA.sh --input-dir ./data --output-dir ./results
 ```
 
 ### Very Slow Training
@@ -643,36 +620,12 @@ module load java/11
 
 ## Advanced Topics
 
-### Custom Stoplist
-
-Create a custom stoplist file with one word per line:
-
-```
-the
-a
-an
-is
-are
-was
-were
-```
-
-Use it:
-```bash
-./final_mallet_2025.sh \
-    --input-dir ./data \
-    --output-dir ./results \
-    --stoplist ./custom_stoplist.txt
-```
-
-**Tip:** The `default_stoplist.txt` provided is a template. Replace it with your actual project-specific stoplist.
-
 ### Testing on Small Dataset
 
 Use `--dry-run` to preview commands without executing:
 
 ```bash
-./final_mallet_2025.sh \
+./mallet_LDA.sh \
     --input-dir ./data \
     --output-dir ./results \
     --dry-run
@@ -740,63 +693,6 @@ keys <- read.table('results/keys.txt',
 head(keys)
 ```
 
-### Batch Processing Multiple Corpora
-
-To process multiple datasets:
-
-```bash
-#!/bin/bash
-
-# Process multiple corpora
-for corpus in corpus1 corpus2 corpus3; do
-    echo "Processing $corpus..."
-    ./final_mallet_2025.sh \
-        --input-dir ./data/$corpus \
-        --output-dir ./results/$corpus
-done
-```
-
----
-
-## Testing
-
-### Running Tests Without MALLET
-
-The project includes a comprehensive test suite that works **without requiring MALLET installation**:
-
-```bash
-cd test/
-./run_tests.sh
-```
-
-**What gets tested:**
-- ✅ Configuration file loading
-- ✅ CLI argument parsing
-- ✅ Precedence (config vs CLI)
-- ✅ Input/output validation
-- ✅ Error handling
-- ✅ Output file creation
-- ✅ Inference script
-- ✅ Model parameter immutability
-- ✅ Dry-run mode
-- ✅ Help text completeness
-
-**Test results:**
-```
-Total tests run:    12
-Tests passed:       32 assertions
-Tests failed:       0
-✓ ALL TESTS PASSED
-```
-
-The test suite uses a mock MALLET implementation, making it perfect for:
-- Development and debugging
-- Continuous Integration (CI/CD)
-- Verifying script functionality
-- Testing without large datasets
-
-See `test/README_TESTING.md` for detailed testing documentation.
-
 ---
 
 ## Support
@@ -805,8 +701,8 @@ For issues or questions:
 
 1. Check the [Troubleshooting](#troubleshooting) section above
 2. Ensure MALLET is properly installed: `mallet --help`
-3. Try `--dry-run` to preview commands: `./final_mallet_2025.sh ... --dry-run`
-4. Review the script's help: `./final_mallet_2025.sh --help`
+3. Try `--dry-run` to preview commands: `./mallet_LDA.sh ... --dry-run`
+4. Review the script's help: `./mallet_LDA.sh --help`
 5. Check MALLET documentation: http://mallet.cs.umass.edu/
 
 ---
@@ -815,32 +711,26 @@ For issues or questions:
 
 ```
 .
-├── final_mallet_2025.sh       Main topic modeling script
+├── mallet_LDA.sh              Main topic modeling script
 ├── mallet_inference.sh        Apply model to new documents
 ├── config.template.sh         Configuration template (commit this)
 ├── config.sh                  Your configuration (gitignored)
 ├── default_stoplist.txt       Default stopword list (template)
 ├── .gitignore                 Git ignore rules
-├── README.md                  This documentation
-└── test/                      Testing suite (no MALLET required)
-    ├── mock_mallet.sh         Mock MALLET for testing
-    ├── run_tests.sh           Comprehensive test suite
-    └── README_TESTING.md      Testing documentation
+└── README.md                  This documentation
 ```
 
 **Files to commit to git:**
-- `final_mallet_2025.sh`, `mallet_inference.sh` (scripts)
+- `mallet_LDA.sh`, `mallet_inference.sh` (scripts)
 - `config.template.sh` (template, NOT `config.sh`)
 - `default_stoplist.txt` (or your custom stoplist)
 - `README.md`, `.gitignore` (documentation)
-- `test/` directory (all test files)
 
 **Files ignored by git:**
 - `config.sh` (personal settings)
 - `*.mallet` (binary output files)
 - `results/`, `*_output/` (output directories)
 - `*.out` (SLURM output files)
-- `test/test_workspace/` (test artifacts)
 
 ---
 
