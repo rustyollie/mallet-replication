@@ -6,9 +6,7 @@ This directory contains the preprocessing pipeline for HTRC Extracted Features f
 
 ## Purpose
 
-This preprocessing script is part of the replication package for **exact replication** of published research results. It transforms raw HTRC Extracted Features data into clean text files ready for topic modeling.
-
-**Processing parameters are intentionally hardcoded** to ensure identical results across different computing environments.
+This preprocessing script is part of the replication package that transforms raw HTRC Extracted Features data into clean text files ready for topic modeling.
 
 ---
 
@@ -22,9 +20,8 @@ This preprocessing script is part of the replication package for **exact replica
 6. [Output Format](#output-format)
 7. [Integration with MALLET](#integration-with-mallet)
 8. [Command-Line Reference](#command-line-reference)
-9. [Processing Parameters](#processing-parameters-fixed)
-10. [Troubleshooting](#troubleshooting)
-11. [Testing](#testing)
+9. [Troubleshooting](#troubleshooting)
+10. [Testing](#testing)
 
 ---
 
@@ -212,7 +209,7 @@ Normalize word forms using POS-aware lemmatization.
 1. Try POS-aware lemmatization (NLTK WordNetLemmatizer)
 2. If unchanged, try lemmatization without POS
 3. If still unchanged, try stemming (Snowball Stemmer)
-4. Use stemmed form if it appears in modern dictionary
+4. Accept stemmed form if it appears in reference dictionary (cities, countries, names, English stopwords, modern words, continents, stems, days, months, Roman numerals)
 
 ### Step 7: Modern/Archaic Mapping
 
@@ -228,21 +225,22 @@ Examples:
 
 ### Step 8: Stopword Filtering
 
-Remove common words and named entities using 8 stopword categories:
+Remove common function words and numeric markers using 2 categories:
 
 | Category | Source | Count | Purpose |
 |----------|--------|-------|---------|
-| **Cities** | `world_cities.csv` | ~40,000 | Geographic entities |
-| **Countries** | pycountry | ~249 | Geographic entities |
-| **Continents** | Hardcoded | 6 | Geographic entities |
-| **People Names** | NLTK names | ~8,000 | Named entities |
-| **English Stopwords** | NLTK stopwords | ~179 | Common words |
-| **Modern Words** | NLTK words | ~235,000 | Contemporary vocabulary |
-| **Word Stems** | Computed | ~235,000 | Stemmed forms |
-| **Days/Months** | Hardcoded | 19 | Temporal markers |
-| **Roman Numerals** | Generated (0-500) | 501 | Numeric markers |
+| **English Stopwords** | NLTK stopwords | ~179 | Common words (the, a, is, etc.) |
+| **Roman Numerals** | Generated (0-500) | 501 | Numeric markers (i, ii, iii, iv, etc.) |
 
-**Total stopwords:** ~500,000+ unique terms
+**Total filtered:** ~680 unique terms (stored in `filtered_stopwords` variable)
+
+**Note:** Stopword filtering is applied three times during processing:
+1. After spelling correction (line 578 in `preprocess_htrc.py`)
+2. After lemmatization (line 581 in `preprocess_htrc.py`)
+3. After modern/archaic mapping (line 586 in `preprocess_htrc.py`)
+
+**Additional reference dictionaries (loaded but not used for filtering):**
+- Cities (~40,000), Countries (~249), Continents (6), People Names (~8,000), Modern Words (~235,000), Word Stems (~235,000), Days/Months (19) are loaded into `stem_validation_dict` but only used in Step 6 to validate stemmed forms, not for filtering words from the output
 
 ### Step 9: Final Stemming
 
@@ -324,7 +322,7 @@ python preprocess_htrc.py --config config.sh
 
 # Step 2: Topic Modeling (parent directory)
 cd ..
-./final_mallet_2025.sh \
+./LDA/mallet_LDA.sh \
     --input-dir ./Preprocessing/output_cleaned \
     --output-dir ./results
 ```
@@ -334,13 +332,6 @@ cd ..
 ```
 HTRC .json.bz2 → [preprocess_htrc.py] → Cleaned .txt → [MALLET] → Topic Model
 ```
-
-### Why Two Steps?
-
-1. **Separation of Concerns:** Text cleaning is independent of modeling
-2. **Reproducibility:** Each step can be verified independently
-3. **Flexibility:** Cleaned text can be used for other analyses
-4. **Debugging:** Easier to troubleshoot issues at each stage
 
 ---
 
@@ -398,44 +389,6 @@ python preprocess_htrc.py --config config.sh --output /different/path
 ```bash
 python preprocess_htrc.py --config config.sh --num-processes 16
 ```
-
----
-
-## Processing Parameters (Fixed)
-
-### Why Are Parameters Hardcoded?
-
-This script is designed for **exact replication** of published research. Changing these parameters produces different results and breaks replication.
-
-### Fixed Parameters
-
-| Parameter | Value | Reason |
-|-----------|-------|--------|
-| **POS Tags** | 20 specific tags | Defines what content types are analyzed |
-| **Min Word Length** | 2 characters | Removes abbreviations and OCR artifacts |
-| **Min Word Frequency** | 2 per volume | Reduces noise from rare OCR errors |
-| **Stopword Categories** | All 8 enabled | Comprehensive filtering methodology |
-| **Ligature Mappings** | 6 specific mappings | Handles historical typography |
-| **Greek Corrections** | 4 character mappings | Fixes OCR confusion |
-
-### What IS Configurable?
-
-These parameters adapt to your environment **without affecting results**:
-
-| Parameter | Why Configurable? |
-|-----------|------------------|
-| Input/output paths | System-dependent |
-| CPU processes | Hardware-dependent |
-| Error logging | User preference |
-| Dictionary file paths | Installation-dependent |
-
-### Running Different Analyses
-
-If you want to explore different preprocessing configurations:
-1. Create a copy of the script
-2. Clearly label it as exploratory (not replication)
-3. Document all parameter changes
-4. **Do not call it a replication**
 
 ---
 
@@ -589,36 +542,12 @@ from preprocess_htrc import *
 from htrc_features import FeatureReader
 
 # Load single volume
-vol = FeatureReader(['path/to/volume.json.bz2']).first()
+volume = FeatureReader(['path/to/volume.json.bz2']).first()
 
 # Process
-clean_df = correct_words(vol)
+clean_df = process_volume_pipeline(volume)
 print(clean_df.head(20))
 ```
-
----
-
-## Performance
-
-### Expected Processing Times
-
-Processing time depends on:
-- Number of volumes
-- Average volume size
-- Number of CPU cores
-- Disk I/O speed
-
-**Rough estimates:**
-- 1,000 volumes: 10-30 minutes (8 cores)
-- 10,000 volumes: 2-5 hours (16 cores)
-- 100,000 volumes: 20-50 hours (32 cores)
-
-### Optimization Tips
-
-1. **Use SSD storage** for input and output
-2. **Maximize CPU cores** (but leave 1-2 for system)
-3. **Local storage** preferred over network drives
-4. **Monitor memory** usage to avoid swapping
 
 ---
 
@@ -641,7 +570,7 @@ Preprocessing/
 ├── preprocess_htrc.py          Main preprocessing script
 ├── config.template.sh          Configuration template
 ├── README.md                   This documentation
-├── QUICKSTART.md               Fast start guide
+├── CHANGELOG.md                Version history and changes
 ├── reference_data/             Dictionary files
 │   ├── README.md
 │   ├── Master_Corrections.csv
@@ -655,18 +584,6 @@ Preprocessing/
 
 ---
 
-## Version History
-
-- **v2.0** (2025-10-30): Complete refactor for cross-platform replication
-  - Command-line argument interface
-  - Configuration file support
-  - Comprehensive validation and error handling
-  - Self-documenting help system
-  - Fixed processing parameters for reproducibility
-
-- **v1.0** (2024-11): Original script with hardcoded paths
-
----
 
 ## References
 

@@ -63,7 +63,7 @@ MODULE_JAVA="jdk/1.8.0"               # Customize for your cluster
 # Load settings from config.sh if it exists
 # Command-line arguments will override these settings
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CONFIG_FILE="$SCRIPT_DIR/config.sh"
+CONFIG_FILE="${SLURM_SUBMIT_DIR:-$SCRIPT_DIR}/config.sh"
 
 if [[ -f "$CONFIG_FILE" ]]; then
     # Source the config file
