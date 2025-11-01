@@ -5,9 +5,6 @@ HTRC Text Preprocessing for Topic Modeling - Replication Script
 This script preprocesses HTRC Extracted Features files to produce clean text
 suitable for topic modeling with MALLET.
 
-Processing parameters (POS tags, minimum frequency, stopword filters) are
-FIXED for reproducibility. This ensures exact replication of published results.
-
 Version: 2.1
 Last Updated: 2025-11-01
 """
@@ -29,13 +26,6 @@ from nltk.corpus import words as nltk_words
 import argparse
 import re
 
-
-# ============================================================================
-# PROCESSING PARAMETERS - FIXED FOR REPLICATION
-# ============================================================================
-# These values are intentionally hardcoded to ensure reproducible results.
-# Changing them produces different output and breaks replication.
-# ============================================================================
 
 # POS tags to retain (standard practice for topic modeling)
 POS_TAGS = ('NE', 'NN', 'NNP', 'NNPS', 'JJ', 'JJS', 'JJR',
@@ -61,7 +51,7 @@ LIGATURES = {
     'ﬄ': 'ffl'
 }
 
-# Stopword categories (all enabled for replication)
+# Stopword categories 
 STOPWORD_FILTERS = {
     'cities': True,
     'countries': True,
@@ -93,7 +83,6 @@ non_alpha_translator = str.maketrans('', '', non_alpha_chars)
 # These dictionaries are loaded when the module is imported (not at runtime).
 # This ensures each multiprocessing worker gets its own copy of the data.
 # Dictionaries are loaded from the reference_data/ subdirectory.
-# This matches the original PT_Nov2024.py behavior for multiprocessing.
 # ============================================================================
 
 # Helper function for Roman numerals (needed before loading)
@@ -292,9 +281,7 @@ For detailed documentation, see README.md
         if not args.error_log and 'ERROR_LOG' in config:
             args.error_log = Path(config['ERROR_LOG'])
 
-    # Validate required arguments
-    # Note: Dictionary paths are now loaded from default locations at module import time
-    # and are no longer required as command-line arguments
+
     required = {
         'input': args.input,
         'output': args.output
