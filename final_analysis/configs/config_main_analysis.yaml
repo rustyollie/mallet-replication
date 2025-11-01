@@ -1,6 +1,6 @@
 version: 'main_analysis'
 
-input_path : "./data/input_all/"
+input_path : "./data/final_analysis_input/"
 
 temporary_path: "./data/main_analysis/temporary/"
 
