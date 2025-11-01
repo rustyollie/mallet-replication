@@ -158,9 +158,27 @@ stem_validation_dict = cities.union(
     countries, people_names, english_stopwords, modern_words,
     continents, stems, days, months, roman_numerals
 )
-# 2. filtered_stopwords: Small filtering set (~680 terms) used in process_volume_pipeline()
-#    to actually remove words from output (English stopwords + Roman numerals only)
-filtered_stopwords = english_stopwords.union(roman_numerals)
+# 2. filtered_stopwords: Words to actually remove from output based on STOPWORD_FILTERS configuration
+#    All 9 categories are filtered as specified in STOPWORD_FILTERS dict
+filtered_stopwords = set()
+if STOPWORD_FILTERS.get('cities', False):
+    filtered_stopwords = filtered_stopwords.union(cities)
+if STOPWORD_FILTERS.get('countries', False):
+    filtered_stopwords = filtered_stopwords.union(countries)
+if STOPWORD_FILTERS.get('people_names', False):
+    filtered_stopwords = filtered_stopwords.union(people_names)
+if STOPWORD_FILTERS.get('english_stopwords', False):
+    filtered_stopwords = filtered_stopwords.union(english_stopwords)
+if STOPWORD_FILTERS.get('modern_words', False):
+    filtered_stopwords = filtered_stopwords.union(modern_words)
+if STOPWORD_FILTERS.get('continents', False):
+    filtered_stopwords = filtered_stopwords.union(continents)
+if STOPWORD_FILTERS.get('days_months', False):
+    filtered_stopwords = filtered_stopwords.union(days, months)
+if STOPWORD_FILTERS.get('roman_numerals', False):
+    filtered_stopwords = filtered_stopwords.union(roman_numerals)
+if STOPWORD_FILTERS.get('stems', False):
+    filtered_stopwords = filtered_stopwords.union(stems)
 
 # ============================================================================
 
@@ -436,7 +454,7 @@ def validate_reference_data(args):
         print(f"  ✓ Loaded {len(english_stopwords)} English stopwords")
         print(f"  ✓ Loaded {len(modern_words)} modern words")
         print(f"  ✓ Reference dictionary for stem validation: {len(stem_validation_dict)} terms")
-        print(f"  ✓ Stopwords filtered from output: {len(filtered_stopwords)} terms (English stopwords + Roman numerals)")
+        print(f"  ✓ Stopwords filtered from output: {len(filtered_stopwords)} terms (all 9 categories enabled)")
 
     except Exception as e:
         logging.error(f"Error validating reference data: {e}")
@@ -526,8 +544,8 @@ def ma_search(row):
     """Look up word in Modern/Archaic dictionary"""
     try:
         if row in archaic_words_index:
-            spelling_correctionsection = archaic_to_modern_dict.loc[row]
-            return spelling_correctionsection.stand
+            selection = archaic_to_modern_dict.loc[row]
+            return selection.stand
         else:
             return row
     except Exception as e:
@@ -544,8 +562,8 @@ def spell_correction_lookup(row):
     """Look up word in spelling corrections dictionary"""
     try:
         if row in spelling_corrections_index:
-            spelling_correctionsection = spelling_corrections.loc[row]
-            return spelling_correctionsection.stand
+            selection = spelling_corrections.loc[row]
+            return selection.stand
         else:
             return row
     except Exception as e:
