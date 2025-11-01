@@ -12,7 +12,11 @@ pip install -r requirements.txt
 
 ## Quick Start
 
-The entirety of the final analysis can be run by running the `final_analysis/main.py` file in Python:
+The data for this part of the analysis can be found in the `final_analysis_input` folder in our data repository: [Data For Replication](https://www.dropbox.com/scl/fo/2qg8lv11j41ytjp2ru3k7/AHfF5xuQUVdtFNYKjcwMBa0?rlkey=py6mt8kztk72g8ity4hqlpbqc&st=9d8zn45r&dl=0)
+
+First download the data, create a folder named `data` within the `final_analysis` directory, and place the `final_analysis_input` folder and files into the `data` directory. Alternatively, one could store the data elsewhere and change the `input_path` parameters in the config files, as detailed below.
+
+After this step is completed, the entirety of the final analysis can be run by running the `final_analysis/main.py` file in Python: 
 
 **For Windows Users**
 ```
@@ -25,8 +29,6 @@ python3 final_analysis/main.py
 ```
 
 Note that all necessary input data (i.e. the output of the LDA model and additional files) must be present in order for the code to properly run. The code will create all figures and tables and store them in the `final_analysis/data/paper_assets/` directory.
-
-Configuration files can be found under the `final_analysis/configs` directory. Currently the configuration files point to a single directory for all input data, `data/input_all` with the assumption that all necessary input files (listed below) are present in this directory. All input files must be present for the code to run.
 
 ## Data
 
@@ -95,6 +97,10 @@ The files contain the following parameters:
 - `category_plots_ymax`: sets the maximum y-value for the category plots.
 - `min_regression_year`: sets the minimum year of publication for volumes included in regressions.
 - `ternary_figs`: sets the options for the creation of ternary figures.
+
+### Note on the Categorization Algorithm
+
+Currently, the parameters for `categories` in the config files are pre-set to match those used in the paper, to allow the entire analysis to run by running `main.py`. To replicate the process of selecting categories in its entirety, one would need to take the raw output produced by `categories.py` and imitate the selection process that can be found in the `clusters_qje_r2.xlsx` file in the `final_analysis_input` folder in our [Data For Replication](https://www.dropbox.com/scl/fo/2qg8lv11j41ytjp2ru3k7/AHfF5xuQUVdtFNYKjcwMBa0?rlkey=py6mt8kztk72g8ity4hqlpbqc&st=9d8zn45r&dl=0) repository.
 
 ## List of Figures and Tables
 
