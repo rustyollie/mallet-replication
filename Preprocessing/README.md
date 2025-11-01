@@ -584,18 +584,6 @@ Preprocessing/
 
 ---
 
-## Version History
-
-- **v2.0** (2025-10-30): Complete refactor for cross-platform replication
-  - Command-line argument interface
-  - Configuration file support
-  - Comprehensive validation and error handling
-  - Self-documenting help system
-  - Fixed processing parameters for reproducibility
-
-- **v1.0** (2024-11): Original script with hardcoded paths
-
----
 
 ## References
 

@@ -742,19 +742,6 @@ For issues or questions:
 
 ---
 
-## Version History
-
-- **v2.0** (2025-10-25): Complete refactor for plug-and-play usage
-  - Command-line argument interface
-  - Comprehensive validation and error handling
-  - Self-documenting help system
-  - Support for both local and HPC environments
-  - Separate inference script
-
-- **v1.0**: Original HPC-specific script
-
----
-
 ## License
 
 [To be determined]
