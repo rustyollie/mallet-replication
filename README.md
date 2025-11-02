@@ -5,9 +5,9 @@ The code in this replication package runs the analysis for the paper "Enlightenm
 1. **LDA**
 2. **Final Analysis**
 
-[Data For Replication](https://www.dropbox.com/scl/fo/2qg8lv11j41ytjp2ru3k7/AHfF5xuQUVdtFNYKjcwMBa0?rlkey=py6mt8kztk72g8ity4hqlpbqc&st=9d8zn45r&dl=0)
+The data for replication is available here: [Data For Replication](https://www.dropbox.com/scl/fo/2qg8lv11j41ytjp2ru3k7/AHfF5xuQUVdtFNYKjcwMBa0?rlkey=py6mt8kztk72g8ity4hqlpbqc&st=9d8zn45r&dl=0)
 
-Detailed docuumentation on each can be found within their respective directories.
+Detailed docuumentation on each part can be found within their respective directories.
 
 ## Data Availability and Provenance Statements
 
@@ -100,7 +100,11 @@ This code was developed and run on Python 3.11.1. A `requirements.txt` file is p
 pip install -r requirements.txt
 ```
 
-The entirety of the final analysis can be run by running the `final_analysis/main.py` file in Python:
+**Quick Start**
+
+To run the final analysis, first download the `final_analysis_input` folder from the data repository included above. Place this folder under `final_analysis/data/` (or alternatively, change the `input_path` parameter in the config files under `final_analysis/configs`).
+
+The entirety of the final analysis can then be run by running the `final_analysis/main.py` script in Python:
 
 **For Windows Users**
 ```
@@ -116,7 +120,7 @@ Note that all necessary input data (i.e. the output of the LDA model and additio
 
 Configuration files can be found under the `final_analysis/configs` directory.
 
-For detailed documentation, see `final_analysis/README.md`.
+For more detailed documentation, see `final_analysis/README.md`.
 
 ### License for Code
 
