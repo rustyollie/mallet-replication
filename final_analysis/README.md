@@ -87,6 +87,37 @@ The files in the `final_analysis` directory are structured as follows, assuming 
 ├── sync_assets.py
 └── unbinned_analysis.py
 
+.
+├── data/
+│   └── final_analysis_input/
+├── Rscripts/
+│   ├── additional_ternary_figs.R
+│   ├── famous_books.R
+│   ├── marginal_predicted_figs.R
+│   ├── r_config.yaml
+│   └── regression_tables.R
+├── configs/
+│   ├── config_coherence.yaml
+│   └── config_main_analysis.yaml
+├── src/
+│   ├── categories.py
+│   ├── clean_data.py
+│   ├── constants.py
+│   ├── cross_topics.py
+│   ├── figures.py
+│   ├── shares.py
+│   ├── topic_volume_weights.py
+│   ├── utils.py
+│   └── volume_data.py
+├── .gitignore
+├── README.md
+├── coherence.py
+├── main.py
+├── main_analysis.py
+├── requirements.txt
+├── sync_assets.py
+└── unbinned_analysis.py
+
 ### Orchestration Scripts
 
 There are five ochestration scripts in the `final_analysis` directory.
