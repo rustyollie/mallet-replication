@@ -7,7 +7,7 @@ The code in this replication package runs the analysis for the paper "Enlightenm
 
 The data for replication is available here: [Data For Replication](https://www.dropbox.com/scl/fo/2qg8lv11j41ytjp2ru3k7/AHfF5xuQUVdtFNYKjcwMBa0?rlkey=py6mt8kztk72g8ity4hqlpbqc&st=9d8zn45r&dl=0)
 
-Detailed docuumentation on each part can be found within their respective directories.
+Detailed documentation on each part can be found within their respective directories.
 
 ## Data Availability and Provenance Statements
 
