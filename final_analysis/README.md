@@ -14,21 +14,21 @@ pip install -r requirements.txt
 
 The data for this part of the analysis can be found in the `final_analysis_input` folder in our data repository: [Data For Replication](https://www.dropbox.com/scl/fo/2qg8lv11j41ytjp2ru3k7/AHfF5xuQUVdtFNYKjcwMBa0?rlkey=py6mt8kztk72g8ity4hqlpbqc&st=9d8zn45r&dl=0)
 
-First download the data, create a folder named `data` within the `final_analysis` directory, and place the `final_analysis_input` folder and files into the `data` directory. Alternatively, one could store the data elsewhere and change the `input_path` parameters in the config files, as detailed below.
+First download the data, create a directory named `data` within the `final_analysis` directory, and place the `final_analysis_input` folder and files into the `data` directory. Alternatively, one could store the data elsewhere and change the `input_path` parameters in the config files, as detailed below.
 
-After this step is completed, the entirety of the final analysis can be run by running the `final_analysis/main.py` file in Python: 
+After this step is completed, the entirety of the final analysis can be run by running the `main.py` file in Python: 
 
 **For Windows Users**
 ```
-python final_analysis/main.py
+python main.py
 ```
 
 **For MacOS/Linux Users**
 ```
-python3 final_analysis/main.py
+python3 main.py
 ```
 
-Note that all necessary input data (i.e. the output of the LDA model and additional files) must be present in order for the code to properly run. The code will create all figures and tables and store them in the `final_analysis/data/paper_assets/` directory.
+Note that all necessary input data (i.e. the output of the LDA model and additional files) must be present in order for the code to properly run. The code will create all figures and tables and store them in the `data/paper_assets/` directory.
 
 ## Data
 
@@ -65,7 +65,7 @@ There are five ochestration scripts in the `final_analysis` directory.
 
 ### Source Code
 
-The orchestration scripts call functions from scripts located in the `final_analysis/src/` directory. Below is a list of these scripts and a description of what each one does, in the order that the analysis runs:
+The orchestration scripts call functions from scripts located in the `src/` directory. Below is a list of these scripts and a description of what each one does, in the order that the analysis runs:
 - `clean_data.py`: imports input data, performs some basic data cleaning, and produces intermediate datasets.
 - `cross_topics.py`: performs topic-wise multiplication on the volume topic weights.
 - `categories.py`: runs the algorithm to create distinct categories.
@@ -74,15 +74,15 @@ The orchestration scripts call functions from scripts located in the `final_anal
 - `volume_data.py`: combine category weights, all sentiment scores, and calculate percentiles.
 - `figures.py`: produces main figures.
 
-As part of the analysis, the orchestration scripts run R scripts located in `final_analysis/Rscripts`. Below is a list of these scripts and a description for each one:
+As part of the analysis, the orchestration scripts run R scripts located in the `Rscripts/` directory. Below is a list of these scripts and a description for each one:
 - `regression_tables.R`: runs regressions and produces regression tables.
 - `marginal_predicted_figs.R`: runs regressions, calculates predicted values, and produces predicted values figures.
 - `famous_books.R`: produces figure showing category weights for selected famous volumes.
-- `additional_ternary_figs.R`: creates additional ternary plots.
+- `additional_ternary_figs.R`: creates additional ternary plots, including bi-scale ternary plots and plots with sub-triangles.
 
 ### Configuration Files
 
-Configuration files can be found in `final_analysis/configs`. There are two configuration files:
+Configuration files can be found in the `configs/` directory. There are two configuration files:
 1. `config_main_analysis.yaml`: the configuration file for the main analysis.
 2. `config_coherence.yaml`: the configuration file for the analysis using the Coherence score.
 
