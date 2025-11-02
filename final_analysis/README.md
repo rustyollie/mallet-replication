@@ -56,6 +56,7 @@ The following is a table of data files provided in the `final_analysis_input` fo
 ### Structure
 The files in the `final_analysis` directory are structured as follows, assuming that a `data` directory has been created and the `final_analysis_input` folder has been downloaded and place inside:
 
+```text
 .
 ├── data/
 │   └── final_analysis_input/
@@ -86,37 +87,7 @@ The files in the `final_analysis` directory are structured as follows, assuming 
 ├── requirements.txt
 ├── sync_assets.py
 └── unbinned_analysis.py
-
-.
-├── data/
-│   └── final_analysis_input/
-├── Rscripts/
-│   ├── additional_ternary_figs.R
-│   ├── famous_books.R
-│   ├── marginal_predicted_figs.R
-│   ├── r_config.yaml
-│   └── regression_tables.R
-├── configs/
-│   ├── config_coherence.yaml
-│   └── config_main_analysis.yaml
-├── src/
-│   ├── categories.py
-│   ├── clean_data.py
-│   ├── constants.py
-│   ├── cross_topics.py
-│   ├── figures.py
-│   ├── shares.py
-│   ├── topic_volume_weights.py
-│   ├── utils.py
-│   └── volume_data.py
-├── .gitignore
-├── README.md
-├── coherence.py
-├── main.py
-├── main_analysis.py
-├── requirements.txt
-├── sync_assets.py
-└── unbinned_analysis.py
+```
 
 ### Orchestration Scripts
 
