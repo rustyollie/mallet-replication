@@ -32,7 +32,7 @@ Note that all necessary input data (i.e. the output of the LDA model and additio
 
 ## Data
 
-The following is a table of data files that must be present for the analysis to run:
+The following is a table of data files provided in the `final_analysis_input` folder that must be present for the analysis to run:
 
 | File | Description |
 |------|-------------|
@@ -52,6 +52,40 @@ The following is a table of data files that must be present for the analysis to 
 | `updated_progress_scores_march25.csv` | Scores for the "progress" dictonaries used in the main analysis, as well as the 1708 dictionary. |
 
 ## Scripts
+
+### Structure
+The files in the `final_analysis` directory are structured as follows, assuming that a `data` directory has been created and the `final_analysis_input` folder has been downloaded and place inside:
+
+.
+├── data/
+│   └── final_analysis_input/
+├── Rscripts/
+│   ├── additional_ternary_figs.R
+│   ├── famous_books.R
+│   ├── marginal_predicted_figs.R
+│   ├── r_config.yaml
+│   └── regression_tables.R
+├── configs/
+│   ├── config_coherence.yaml
+│   └── config_main_analysis.yaml
+├── src/
+│   ├── categories.py
+│   ├── clean_data.py
+│   ├── constants.py
+│   ├── cross_topics.py
+│   ├── figures.py
+│   ├── shares.py
+│   ├── topic_volume_weights.py
+│   ├── utils.py
+│   └── volume_data.py
+├── .gitignore
+├── README.md
+├── coherence.py
+├── main.py
+├── main_analysis.py
+├── requirements.txt
+├── sync_assets.py
+└── unbinned_analysis.py
 
 ### Orchestration Scripts
 
