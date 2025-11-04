@@ -20,38 +20,53 @@ For the complete replication package for the paper "Enlightenment Ideals and Bel
 
 ## Complete Replication Pipeline
 
-This repository provides the **topic modeling** component of the replication package. For the complete analysis pipeline:
+This repository provides the **complete three-stage pipeline** from initial HTRC workset to final topic model. For the complete analysis pipeline including figure generation, see the official repository.
 
 ### Pipeline Overview
 
 ```
-HTRC Data → [Preprocessing] → Clean Text → [MALLET] → Topic Model → [Analysis] → Figures & Tables
+HTRC Workset → [Get Unique Volumes] → Volume List → [Download] →
+.json.bz2 Files → [Preprocessing] → Clean Text → [MALLET LDA] → Topic Model
 ```
 
-### Two-Stage Process
+### Three-Stage Process
 
-**Stage 1: Text Preprocessing** (Optional - if starting from raw HTRC data)
+**Stage 1: Get Unique Volumes** (Volume deduplication)
+```bash
+cd "Get Unique Volumes/"
+python get_unique_volumes.py
+```
+
+Deduplicates the initial HTRC workset (383K → 265K volumes), intelligently selecting complete serial sets. Outputs a list of unique volume IDs for download.
+
+See [`Get Unique Volumes/README.md`](Get%20Unique%20Volumes/README.md) for detailed documentation.
+
+**Stage 2: Text Preprocessing** (Clean HTRC data)
 ```bash
 cd Preprocessing/
 python preprocess_htrc.py --config config.sh
 ```
 
-Converts HTRC Extracted Features files (`.json.bz2`) to cleaned text files (`.txt`).
+Converts HTRC Extracted Features files (`.json.bz2`) to cleaned text files (`.txt`). Applies 9-step pipeline including lemmatization, stopword removal, and modernization.
 
 See [`Preprocessing/README.md`](Preprocessing/README.md) for detailed preprocessing documentation.
 
-**Stage 2: Topic Modeling** (This package)
+**Stage 3: Topic Modeling** (Train MALLET model)
 ```bash
+cd LDA/
 ./mallet_LDA.sh --input-dir ./data --output-dir ./results
 ```
 
-Trains MALLET LDA topic model on cleaned text.
+Trains MALLET LDA topic model (60 topics) on cleaned text. Produces document-topic distributions for analysis.
+
+See [`LDA/README.md`](LDA/README.md) for detailed MALLET documentation.
 
 ### Starting Point
 
-You can start from either:
-- **Raw HTRC data** → Use both Preprocessing + MALLET
-- **Pre-cleaned text files** → Use MALLET only (skip Preprocessing)
+You can start from any stage depending on your data:
+- **HTRC workset CSV** → Run all three stages (complete pipeline)
+- **Downloaded .json.bz2 files** → Skip Stage 1, run Stages 2-3
+- **Pre-cleaned text files** → Skip Stages 1-2, run Stage 3 only
 
 ---
 
@@ -61,16 +76,24 @@ These scripts are designed for **exact replication** of published research resul
 
 ## What's Included
 
-### MALLET Topic Modeling
-- `mallet_LDA.sh` - Main topic modeling script
-- `mallet_inference.sh` - Apply trained model to new documents
-- `default_stoplist.txt` - Default stopword list (template)
+### Stage 1: Get Unique Volumes
+- `Get Unique Volumes/` - Volume deduplication pipeline
+  - `get_unique_volumes.py` - Main deduplication script
+  - `Get Unique Volumes.ipynb` - Original Jupyter notebook (reference)
+  - See [`Get Unique Volumes/README.md`](Get%20Unique%20Volumes/README.md) for details
 
-### Text Preprocessing
+### Stage 2: Text Preprocessing
 - `Preprocessing/` - HTRC text preprocessing pipeline
   - `preprocess_htrc.py` - Main preprocessing script
   - `reference_data/` - Required dictionary files
   - See [`Preprocessing/README.md`](Preprocessing/README.md) for details
+
+### Stage 3: MALLET Topic Modeling
+- `LDA/` - MALLET topic modeling
+  - `mallet_LDA.sh` - Main topic modeling script
+  - `mallet_inference.sh` - Apply trained model to new documents
+  - `default_stoplist.txt` - Default stopword list (template)
+  - See [`LDA/README.md`](LDA/README.md) for details
 
 ---
 
