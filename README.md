@@ -34,7 +34,7 @@ HTRC Workset → [Get Unique Volumes] → Volume List → [Download] →
 **Stage 1: Get Unique Volumes** (Volume deduplication)
 ```bash
 cd "Get Unique Volumes/"
-python get_unique_volumes.py
+jupyter notebook "Get Unique Volumes for Rsync.ipynb"
 ```
 
 Deduplicates the initial HTRC workset (383K → 265K volumes), intelligently selecting complete serial sets. Outputs a list of unique volume IDs for download.
@@ -78,7 +78,7 @@ These scripts are designed for **exact replication** of published research resul
 
 ### Stage 1: Get Unique Volumes
 - `Get Unique Volumes/` - Volume deduplication pipeline
-  - `get_unique_volumes.py` - Main deduplication script
+  - `Get Unique Volumes for Rsync.ipynb` - Production deduplication notebook
   - `Get Unique Volumes.ipynb` - Original Jupyter notebook (reference)
   - See [`Get Unique Volumes/README.md`](Get%20Unique%20Volumes/README.md) for details
 
