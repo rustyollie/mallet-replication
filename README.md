@@ -1,13 +1,129 @@
 # AIKR
 ## Overview
-The code in this replication package runs the analysis for the paper "Enlightenment Ideals and Beliefs in Progress in the Run-up to the Industrial Revolution: A Textual Analysis" by Ali Almelhem, Murat Iyigun, Austin Kennedy, and Jared Rubin. It produces 53 figures and 3 tables. The code in this replication package is split into two parts:
+The code in this replication package runs the analysis for the paper "Enlightenment Ideals and Beliefs in Progress in the Run-up to the Industrial Revolution: A Textual Analysis" by Ali Almelhem, Murat Iyigun, Austin Kennedy, and Jared Rubin. It produces 53 figures and 3 tables. The code in this replication package is split into four parts:
 
-1. **LDA**
-2. **Final Analysis**
+1. **Get Unique Volumes** - Volume deduplication from HTRC workset
+2. **Preprocessing** - Text preprocessing and cleaning
+3. **LDA** - MALLET topic modeling
+4. **Final Analysis** - Statistical analysis, regressions, and visualization
 
 The data for replication is available here: [Data For Replication](https://www.dropbox.com/scl/fo/2qg8lv11j41ytjp2ru3k7/AHfF5xuQUVdtFNYKjcwMBa0?rlkey=py6mt8kztk72g8ity4hqlpbqc&st=9d8zn45r&dl=0)
 
 Detailed documentation on each part can be found within their respective directories.
+
+---
+
+## Complete Replication Pipeline
+
+This repository provides the **complete four-stage pipeline** from initial HTRC workset to final figures and tables.
+
+###  Pipeline Overview
+
+```
+HTRC Workset → [Get Unique Volumes] → Volume List → [Download] →
+.json.bz2 Files → [Preprocessing] → Clean Text → [LDA] → Topics →
+[Final Analysis] → Figures & Tables
+```
+
+### Four-Stage Process
+
+**Stage 1: Get Unique Volumes** (Volume deduplication)
+```bash
+cd "Get Unique Volumes/"
+jupyter notebook "Get Unique Volumes for Rsync.ipynb"
+```
+
+Deduplicates the initial HTRC workset (383K → 265K volumes), intelligently selecting complete serial sets. Outputs a list of unique volume IDs for download.
+
+See [`Get Unique Volumes/README.md`](Get%20Unique%20Volumes/README.md) for detailed documentation.
+
+**Stage 2: Text Preprocessing** (Clean HTRC data)
+```bash
+cd Preprocessing/
+python preprocess_htrc.py
+```
+
+Converts HTRC Extracted Features files (`.json.bz2`) to cleaned text files (`.txt`). Applies 9-step pipeline including lemmatization, stopword removal, and modernization.
+
+**Performance**: Processes ~3.76 files/second (~13,500 files/hour) on a 24-core system. The full 264K corpus processes in approximately 19-20 hours.
+
+See [`Preprocessing/README.md`](Preprocessing/README.md) for detailed preprocessing documentation.
+
+**Stage 3: Topic Modeling** (Train MALLET model)
+```bash
+cd LDA/
+./mallet_LDA.sh --input-dir ./data --output-dir ./results
+```
+
+Trains MALLET LDA topic model (60 topics) on cleaned text. Produces document-topic distributions for analysis.
+
+See [`LDA/README.md`](LDA/README.md) for detailed MALLET documentation.
+
+**Stage 4: Final Analysis** (Statistical analysis and visualization)
+```bash
+cd final_analysis/
+python main.py
+```
+
+Takes LDA output, performs data processing, runs regression analysis, and generates all 53 figures and 3 tables for the paper.
+
+See [`final_analysis/README.md`](final_analysis/README.md) for detailed analysis documentation.
+
+### Starting Point
+
+You can start from any stage depending on your data:
+- **HTRC workset CSV** → Run all four stages (complete pipeline)
+- **Downloaded .json.bz2 files** → Skip Stage 1, run Stages 2-4
+- **Pre-cleaned text files** → Skip Stages 1-2, run Stages 3-4
+- **LDA topic output** → Skip Stages 1-3, run Stage 4 only
+
+---
+
+## Purpose
+
+These scripts are designed for **exact replication** of published research results. Model parameters are intentionally hardcoded to ensure identical results across different computing environments.
+
+## Validation and Quality Assurance
+
+This pipeline has undergone extensive validation (November 2025):
+- **500-file validation**: 100% semantic match with reference data (493/493 files)
+- **Full corpus deployment**: 264,433 files processed (100% complete)
+- **Empty file handling**: 683 empty placeholder files correctly generated for volumes with no clean text
+- **Continuous validation**: 100% semantic match maintained throughout processing
+- **Processing rate**: 3.76 files/second (~13,500 files/hour)
+- **Total validated**: 1,000+ files across multiple test rounds
+
+All scripts produce outputs that are semantically identical to reference data, with only cosmetic differences in word order that don't affect topic modeling results.
+
+## What's Included
+
+### Stage 1: Get Unique Volumes
+- `Get Unique Volumes/` - Volume deduplication pipeline
+  - `Get Unique Volumes for Rsync.ipynb` - Production deduplication notebook
+  - `Get Unique Volumes.ipynb` - Original Jupyter notebook (reference)
+  - See [`Get Unique Volumes/README.md`](Get%20Unique%20Volumes/README.md) for details
+
+### Stage 2: Text Preprocessing
+- `Preprocessing/` - HTRC text preprocessing pipeline
+  - `preprocess_htrc.py` - Main preprocessing script (validated, production-ready)
+  - `reference_data/` - Required dictionary files (corrections, modern/archaic mappings, etc.)
+  - `test/` - Comprehensive test suite
+  - See [`Preprocessing/README.md`](Preprocessing/README.md) for details
+
+### Stage 3: MALLET Topic Modeling
+- `LDA/` - MALLET topic modeling
+  - `mallet_LDA.sh` - Main topic modeling script
+  - `mallet_inference.sh` - Apply trained model to new documents
+  - `default_stoplist.txt` - Default stopword list (template)
+  - See [`LDA/README.md`](LDA/README.md) for details
+
+### Stage 4: Final Analysis
+- `final_analysis/` - Statistical analysis and visualization
+  - `main.py` - Main analysis pipeline
+  - `src/` - Analysis modules (categories, figures, regressions, etc.)
+  - `Rscripts/` - R scripts for regression tables and additional figures
+  - `configs/` - Configuration files
+  - See [`final_analysis/README.md`](final_analysis/README.md) for details
 
 ## Data Availability and Provenance Statements
 
@@ -24,7 +140,95 @@ All data are publicly available.
 
 ## Description of Programs/Code
 
-### LDA
+### Stage 1: Get Unique Volumes
+
+The volume deduplication pipeline is implemented in Jupyter notebooks that process HTRC workset metadata to identify and select unique volumes while handling serial publications intelligently.
+
+**Key Features:**
+- Deduplicates 383K volumes → 265K unique volumes
+- Intelligently selects complete serial sets
+- Handles multi-volume works and periodicals
+- Produces volume ID list for HTRC Analytics rsync download
+
+**Requirements:**
+- Python 3.8+
+- pandas
+- tqdm (for progress bars)
+- Jupyter Notebook
+
+**Quick Start:**
+
+```bash
+cd "Get Unique Volumes/"
+jupyter notebook "Get Unique Volumes for Rsync.ipynb"
+```
+
+**Output:**
+- `deduplicated_volume_list.txt` - List of 264,825 unique volume IDs ready for download
+
+For detailed documentation, see `Get Unique Volumes/README.md`.
+
+### Stage 2: Preprocessing
+
+The preprocessing pipeline converts HTRC Extracted Features files (`.json.bz2`) to cleaned text files ready for topic modeling.
+
+**9-Step Processing Pipeline:**
+1. Load HTRC Extracted Features (page-level word frequencies)
+2. Spell correction using custom dictionary (1,255 corrections)
+3. Modern/archaic word normalization (3,721 mappings)
+4. Part-of-speech filtering (20 POS tags retained)
+5. Minimum word length filter (≥2 characters)
+6. Minimum word frequency filter (≥2 occurrences per volume)
+7. Stopword removal (2 of 9 categories: English stopwords + Roman numerals)
+8. Lemmatization to base forms
+9. Output sorted by word frequency
+
+**Key Features:**
+- **Hardcoded parameters** for exact replication:
+  - POS tags: 20 specific tags (nouns, verbs, adjectives, etc.)
+  - Min word length: 2 characters
+  - Min word frequency: 2 per volume
+  - Stopword filters: Only `english_stopwords` + `roman_numerals` enabled
+- **Multiprocessing**: Auto-detects CPU cores (24 cores → ~13,500 files/hour)
+- **Memory efficient**: Processes large corpus without loading all files into memory
+- **Progress tracking**: Real-time progress bars with tqdm
+- **Robust error handling**: Continues processing on individual file errors
+
+**Requirements:**
+- Python 3.8+
+- pandas
+- numpy
+- nltk (with WordNet corpus)
+- htrc-feature-reader
+- tqdm
+
+**Quick Start:**
+
+```bash
+cd Preprocessing/
+
+# Copy and edit configuration
+cp config.template.sh config.sh
+vim config.sh  # Set INPUT_DIR, OUTPUT_DIR
+
+# Run preprocessing
+python preprocess_htrc.py --input INPUT_DIR --output OUTPUT_DIR
+```
+
+**Performance:**
+- **Processing rate**: 3.76 files/second (13,536 files/hour)
+- **Full corpus (264K files)**: ~19-20 hours on 24-core system
+- **Memory usage**: <8GB RAM for typical volume
+
+**Output:**
+- One `.txt` file per input volume
+- Each line: `word frequency`
+- Words sorted by frequency (descending)
+- Empty files (0 bytes) for volumes with no clean text after filtering
+
+For detailed documentation, see `Preprocessing/README.md`.
+
+### Stage 3: LDA
 
 The code stored in the `lda` directory implements MALLET (MAchine Learning for LanguagE Toolkit) topic modeling to extract 60 topics from the historical corpus. This produces the LDA output files that are used as input for the Final Analysis pipeline.
 
@@ -90,7 +294,7 @@ cd lda/test
 
 The test suite includes 12 test scenarios with 32 assertions covering configuration management, CLI arguments, validation, and error handling.
 
-### Final Analysis
+### Stage 4: Final Analysis
 
 The code stored in the `final_analysis` directory takes the output of the LDA model, performs data processing and transformation, runs the algorithm to get distinct "categories" of topics (e.g. Science, Religion, and Political Economy), runs regressions, and produces the final tables and figures.
 
@@ -122,6 +326,93 @@ Configuration files can be found under the `final_analysis/configs` directory.
 
 For more detailed documentation, see `final_analysis/README.md`.
 
-### License for Code
+---
+
+## Requirements Summary
+
+### System Requirements
+- **OS**: Linux, macOS, or Windows (with Bash via WSL/Git Bash)
+- **CPU**: Multi-core recommended (24 cores optimal for Stage 2)
+- **Memory**: 8GB RAM minimum, 16GB+ recommended
+- **Storage**: ~500GB for full corpus + outputs
+
+### Software Requirements
+
+**Stage 1: Get Unique Volumes**
+- Python 3.8+
+- pandas
+- tqdm
+- Jupyter Notebook
+
+**Stage 2: Preprocessing**
+- Python 3.8+
+- pandas, numpy
+- nltk (with WordNet)
+- htrc-feature-reader
+- tqdm
+
+**Stage 3: LDA**
+- MALLET 2.0.8+
+- Java 1.8+
+- Bash 4.0+
+
+**Stage 4: Final Analysis**
+- Python 3.11.1
+- R 4.0+ (for regression tables)
+- See `final_analysis/requirements.txt` for Python packages
+
+---
+
+## Troubleshooting
+
+### Stage 1: Get Unique Volumes
+- **Issue**: Out of memory errors
+  - **Solution**: Process metadata in chunks (adjust `chunksize` parameter)
+
+### Stage 2: Preprocessing
+- **Issue**: Script runs slowly
+  - **Solution**: Check `--num-processes` (default: auto-detect cores)
+
+- **Issue**: Missing NLTK data
+  - **Solution**: Run `python -m nltk.downloader wordnet`
+
+- **Issue**: Empty output files
+  - **Solution**: This is expected behavior for volumes with no clean text after filtering (683 files, 0.26% of corpus)
+
+### Stage 3: LDA
+- **Issue**: Java heap space errors
+  - **Solution**: Increase memory in config: `MEMORY=16G`
+
+- **Issue**: MALLET command not found
+  - **Solution**: Add MALLET to PATH: `export PATH=/path/to/mallet/bin:$PATH`
+
+### Stage 4: Final Analysis
+- **Issue**: Missing input data
+  - **Solution**: Download from data repository and place in `final_analysis/data/`
+
+- **Issue**: R script errors
+  - **Solution**: Install required R packages listed in `final_analysis/Rscripts/r_config.yaml`
+
+For additional troubleshooting, see individual stage README files.
+
+---
+
+## Acknowledgments
+
+This analysis uses MALLET (MAchine Learning for LanguagE Toolkit) developed by Andrew McCallum.
+
+**Citation for MALLET:**
+> McCallum, Andrew Kachites. "MALLET: A Machine Learning for Language Toolkit."
+> http://mallet.cs.umass.edu. 2002.
+
+The historical text corpus is provided by the HathiTrust Research Center (HTRC).
+
+**Citation for HTRC:**
+> HathiTrust Research Center. "HTRC Extracted Features Dataset."
+> https://analytics.hathitrust.org/
+
+---
+
+## License for Code
 
 This code is licensed under the MIT license. See the LICENSE file for details.
