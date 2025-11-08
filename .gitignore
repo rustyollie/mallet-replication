@@ -84,3 +84,49 @@ Get Unique Volumes/.ipynb_checkpoints/
 
 # Claude Code internal files
 .claude/
+
+# Archive folder - validation tests and historical data
+Archive/
+
+# Test and validation folders
+PT_test/
+*_test/
+*_validation/
+
+# Deployment output folders
+Full_Deployment_Output/
+*_Deployment_Output/
+
+# Large data files and corpora (should not be committed)
+# Input corpus
+Get Unique Volumes/rsync_*/
+
+# Reference data (ground truth from November 2024)
+# Note: Reference data paths are external, listed here for documentation
+# E:\Documents\UKFinal\Cleaned_Nov2024/
+# E:\Documents\UKFinal\Rsync_Deduplicated/
+
+# Preprocessing outputs
+Preprocessing/*_output/
+Preprocessing/cleaned_*/
+Preprocessing/*.log
+
+# Log files
+*.log
+deployment_*.log
+*_stdout.log
+*_stderr.log
+
+# Validation and test reports
+VALIDATION_*.md
+HOURLY_*.md
+*_COMPLETE.txt
+*_STARTED.txt
+*_PHASE_*.txt
+*_ISSUE.txt
+*.csv
+
+# Comparison and analysis files
+compare_*.py
+*_comparison.md
+*_analysis.txt

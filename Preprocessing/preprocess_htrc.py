@@ -51,17 +51,19 @@ LIGATURES = {
     'ﬄ': 'ffl'
 }
 
-# Stopword categories 
+# Stopword categories
+# Only english_stopwords and roman_numerals are filtered (matching PT_Nov2024.py)
+# All other categories are used only for stem validation, not filtering
 STOPWORD_FILTERS = {
-    'cities': True,
-    'countries': True,
-    'people_names': True,
+    'cities': False,
+    'countries': False,
+    'people_names': False,
     'english_stopwords': True,
-    'modern_words': True,
-    'continents': True,
-    'days_months': True,
+    'modern_words': False,
+    'continents': False,
+    'days_months': False,
     'roman_numerals': True,
-    'stems': True
+    'stems': False
 }
 
 # ============================================================================
@@ -159,7 +161,7 @@ stem_validation_dict = cities.union(
     continents, stems, days, months, roman_numerals
 )
 # 2. filtered_stopwords: Words to actually remove from output based on STOPWORD_FILTERS configuration
-#    All 9 categories are filtered as specified in STOPWORD_FILTERS dict
+#    Only 2 categories are filtered: english_stopwords + roman_numerals (~680 terms)
 filtered_stopwords = set()
 if STOPWORD_FILTERS.get('cities', False):
     filtered_stopwords = filtered_stopwords.union(cities)
@@ -345,20 +347,16 @@ def validate_environment(args):
         if not json_files:
             errors.append(f"No .json.bz2 files found in: {args.input}")
         else:
-            print(f"  ✓ Found {len(json_files)} .json.bz2 files in input directory")
+            print(f"  [OK] Found {len(json_files)} .json.bz2 files in input directory")
 
     # Check output directory
     if args.output.exists() and not args.dry_run:
-        print(f"  ⚠ WARNING: Output directory exists: {args.output}")
-        print("    Files may be overwritten!")
-        response = input("    Continue? [y/N]: ")
-        if response.lower() != 'y':
-            print("Aborted by user.")
-            sys.exit(0)
+        print(f"  [WARNING] Output directory exists: {args.output}")
+        print("    Files may be overwritten! Continuing anyway...")
 
     # Check dictionary files exist (loaded from default paths at module import)
     # These are now validated in validate_reference_data(), so we just report that they're loaded
-    print(f"  ✓ Dictionary files loaded from default paths (reference_data/)")
+    print(f"  [OK] Dictionary files loaded from default paths (reference_data/)")
 
     # Check Python libraries
     try:
@@ -367,7 +365,7 @@ def validate_environment(args):
         import pycountry
         import tqdm
         import nltk
-        print("  ✓ All required Python libraries are installed")
+        print("  [OK] All required Python libraries are installed")
     except ImportError as e:
         errors.append(f"Required library not installed: {e}")
 
@@ -387,19 +385,19 @@ def validate_environment(args):
             f"    Install with: python -m nltk.downloader {' '.join(missing_nltk)}"
         )
     else:
-        print("  ✓ All required NLTK data is available")
+        print("  [OK] All required NLTK data is available")
 
     if errors:
         print("\n" + "="*80)
         print("ERROR: Environment validation failed")
         print("="*80)
         for error in errors:
-            print(f"\n✗ {error}")
+            print(f"\n[ERROR] {error}")
         print("\nPlease fix these issues and try again.")
         print("="*80)
         sys.exit(1)
 
-    print("  ✓ Environment validation passed")
+    print("  [OK] Environment validation passed")
 
 
 def print_configuration(args):
@@ -427,7 +425,8 @@ def print_configuration(args):
     print(f"  POS Tags:             {len(POS_TAGS)} tags")
     print(f"  Min Word Length:      {MIN_WORD_LENGTH} characters")
     print(f"  Min Word Frequency:   {MIN_WORD_FREQUENCY} per volume")
-    print(f"  Stopword Filters:     All {len(STOPWORD_FILTERS)} categories enabled")
+    enabled_filters = sum(1 for v in STOPWORD_FILTERS.values() if v)
+    print(f"  Stopword Filters:     {enabled_filters} of {len(STOPWORD_FILTERS)} categories enabled (english_stopwords + roman_numerals)")
     print("="*80)
     print()
 
@@ -441,20 +440,21 @@ def validate_reference_data(args):
         if spelling_corrections is None or len(spelling_corrections) == 0:
             logging.error("Spelling corrections not loaded")
             sys.exit(1)
-        print(f"  ✓ Loaded {len(spelling_corrections)} spelling corrections")
+        print(f"  [OK] Loaded {len(spelling_corrections)} spelling corrections")
 
         if archaic_to_modern_dict is None or len(archaic_to_modern_dict) == 0:
             logging.error("Modern/archaic mappings not loaded")
             sys.exit(1)
-        print(f"  ✓ Loaded {len(archaic_to_modern_dict)} modern/archaic mappings")
+        print(f"  [OK] Loaded {len(archaic_to_modern_dict)} modern/archaic mappings")
 
-        print(f"  ✓ Loaded {len(cities)} city names")
-        print(f"  ✓ Loaded {len(countries)} countries")
-        print(f"  ✓ Loaded {len(people_names)} people names")
-        print(f"  ✓ Loaded {len(english_stopwords)} English stopwords")
-        print(f"  ✓ Loaded {len(modern_words)} modern words")
-        print(f"  ✓ Reference dictionary for stem validation: {len(stem_validation_dict)} terms")
-        print(f"  ✓ Stopwords filtered from output: {len(filtered_stopwords)} terms (all 9 categories enabled)")
+        print(f"  [OK] Loaded {len(cities)} city names")
+        print(f"  [OK] Loaded {len(countries)} countries")
+        print(f"  [OK] Loaded {len(people_names)} people names")
+        print(f"  [OK] Loaded {len(english_stopwords)} English stopwords")
+        print(f"  [OK] Loaded {len(modern_words)} modern words")
+        print(f"  [OK] Reference dictionary for stem validation: {len(stem_validation_dict)} terms")
+        enabled_filters = sum(1 for v in STOPWORD_FILTERS.values() if v)
+        print(f"  [OK] Stopwords filtered from output: {len(filtered_stopwords)} terms ({enabled_filters} of {len(STOPWORD_FILTERS)} categories: english_stopwords + roman_numerals)")
 
     except Exception as e:
         logging.error(f"Error validating reference data: {e}")
@@ -488,8 +488,9 @@ def scan_htrc_files(input_path: Path) -> pd.DataFrame:
 
 def getFeatureReader(final_ids):
     """Create FeatureReader from file paths"""
-    # Build file paths (cross-platform)
-    file_paths = [str(Path(row['Path']) / row['Filename']) for _, row in final_ids.iterrows()]
+    # Build file paths using vectorized pandas operations (MUCH faster than iterrows)
+    # Note: On Windows, Path separator will be backslash; on Unix, forward slash
+    file_paths = list(final_ids['Path'] + os.sep + final_ids['Filename'])
     corpus = FeatureReader(file_paths)
     return corpus
 
@@ -575,7 +576,7 @@ def process_volume_pipeline(volume):
     """Process a volume: extract tokens, clean, lemmatize, filter"""
     token_list = volume.tokenlist(pages=False, case=False, section='body')
     token_list.index = token_list.index.droplevel(0)
-    filtered_tokens = token_list.loc[idx[:, POS_TAGS],]
+    filtered_tokens = token_list[token_list.index.get_level_values(1).isin(POS_TAGS)]
     filtered_tokens = clean_punctuation(filtered_tokens)
     filtered_tokens = filtered_tokens.assign(corrected=filtered_tokens.corrected.map(spell_correction_lookup))
     filtered_tokens = filtered_tokens.groupby(['corrected','pos']).sum()
@@ -600,13 +601,13 @@ def process_volume(volume, output_path):
     save_path = output_path / f"{volume.id.replace(':','+').replace('/','=')}.txt"
     try:
         clean_df = process_volume_pipeline(volume)
-        if clean_df is None or len(clean_df) == 0:
+        if clean_df is None:
             logging.warning(f"No clean data for volume {volume.id}")
             return None
         clean_df = clean_df.sort_values('count', ascending=False)
         with open(save_path, 'w', encoding='utf8') as output:
            for item, value in clean_df.iterrows():
-               to_print = [(item + ' ') * int(value[0])]
+               to_print = [(item + ' ') * int(value['count'])]
                output.write(str(to_print[0]))
         return clean_df
     except Exception as e:
@@ -620,19 +621,30 @@ def process_volume_wrapper(args_tuple):
     return process_volume(volume, output_path)
 
 
-def CleanAndWrite(corpus, output_path, num_processes=None):
+def CleanAndWrite(corpus, output_path, num_processes=None, volume_limit=None):
     """Process all volumes using multiprocessing"""
     total_volumes = len(corpus)
 
     if num_processes is None:
         num_processes = mp.cpu_count()
 
-    # Prepare arguments for multiprocessing
-    volumes_with_path = [(volume, output_path) for volume in corpus.volumes()]
+    # Use generator to avoid loading all volumes into memory at once (critical for 264K volumes)
+    def volume_generator():
+        count = 0
+        for volume in corpus.volumes():
+            if volume_limit is not None and count >= volume_limit:
+                break
+            yield (volume, output_path)
+            count += 1
+
+    # Adjust total if limiting
+    if volume_limit is not None:
+        print(f"Limiting processing to first {volume_limit} volumes (out of {total_volumes} total)")
+        total_volumes = min(volume_limit, total_volumes)
 
     with mp.Pool(processes=num_processes) as pool:
         results = list(tqdm(
-            pool.imap(process_volume_wrapper, volumes_with_path),
+            pool.imap(process_volume_wrapper, volume_generator()),
             total=total_volumes,
             desc="Processing volumes"
         ))
